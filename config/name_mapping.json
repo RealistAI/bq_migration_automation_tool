@@ -1,0 +1,18 @@
+{
+  "name_mapping": [
+		{
+		  "source": {
+				"type": "RELATION",
+				"database": "some_teradata_db",
+				"schema": "some_teradata_schema",
+				"atribute": "legacy_table"
+			},
+			"target": {
+				"database": "bigquery-public-data",
+				"schema": "usa_names",
+				"attribute": "usa_names_1910_2013"
+			}
+		}
+	]
+}
+

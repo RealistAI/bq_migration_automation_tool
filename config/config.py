@@ -1,0 +1,10 @@
+bq_migration_config={'project':'michael-gilbert-dev',
+                     'preprocessed':'gs://dwh_preprocessed',
+                     'input':'source_sql/',
+                     'translated':'gs://dwh_translated',
+                     'output':'transpiled_sql/',
+                     'validated_sql_output':'validated_sql/',
+                     'invalid_sql_output':'invalid_sql/',
+                     'dwh_config':'dwh_migration_tools/config/config.yaml',
+                     'mapping_config':'config/name_mapping.json',
+                     'debug_mode':False}

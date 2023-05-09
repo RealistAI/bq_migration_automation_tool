@@ -22,23 +22,11 @@ location: 'us'
 # Default database and schemas to use when looking up unqualified references:
 
 # https://cloud.google.com/bigquery/docs/output-name-mapping#default_database
-default_database: michael-gilbert-dev
+default_database: bigquery-public-data
 
 # https://cloud.google.com/bigquery/docs/output-name-mapping#default_schema
 schema_search_path:
-  - qwerty
+  - usa_names
   - foo
-
-
-# MOVE TO PYTHON FILE
-gcp_project: 'michael-gilbert-dev' 
-
-gcs_bucket: 'dwh_test_bucket'
-
-source: 'gs://mikes_dont_use/input/'
-
-output: 'gs://mikes_dont_use/output/'
-
-git_repo: 'https://github.com/RealistAI/bq_migration_automation_tool.git'
 
 
