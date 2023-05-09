@@ -22,47 +22,31 @@ def submit_query(query:str,
     client = bigquery.Client()
     job_config = bigquery.QueryJobConfig(dry_run=dry_run)
     try:
-        logger.info("Submitting query to BigQuery:\n{query}\n")
+        logger.info(f"Submitting query to BigQuery:\n{query}\n")
         query_job = client.query(query=query,
                                  job_config=job_config)
         return query_job
     except Exception as error:
-        logger.exception(f'Query failed with error: {error}')
+        return error
 
 
-def validate_sql(sql_to_validate,
-                 output_validated_sql,
-                 output_invalid_sql):
-    invalid_sql = []
-    validated_sql = []
-    regex_pattern = r'SELECT[\s\S]*?;'
-    current_datetime = datetime.datetime.now()
-    invalid_sql_file = f'{output_invalid_sql}/batch_{current_datetime}.txt'
-    validated_sql_file = f'{output_validated_sql}/b1atch_{current_datetime}.txt'
+def validate_sql(sql_to_validate):
+    logger.info(f'Validating {sql_to_validate}')
+    with open (sql_to_validate, 'r') as file:
+        data = file.read()
 
-    if os.path.isfile(sql_to_validate):
-        with open (sql_to_validate, 'r') as file:
-            data = file.read()
-        logger.debug(data)
-
-
-        sql_queries = re.findall(regex_pattern, data)
-        for query in sql_queries:
-            logger.debug(f'Submitting query: {query}')
-            query_job = submit_query(query=query,
-                                     dry_run=True)
-
-            if query_job is None:
-                invalid_sql = invalid_sql.append(query)
-                utils.create_file(file_name=invalid_sql_file)
-            elif query_job.totalBytesProcessed != None:
-                validate_sql = validate_sql.append(query)
-                utils.create_file(file_name=validated_sql_file)
-
-    utils.write_list_to_file(file=invalid_sql_file,
-                             list_to_write=invalid_sql)
-    utils.write_list_to_file(file=validated_sql_file,
-                             list_to_write=validated_sql)
+    logger.debug(f'Submitting {sql_to_validate} for dry-run')
+    try:
+        query_job = submit_query(query=data,
+                                 dry_run=True)
+        logger.info(f'{sql_to_validate} was valid')
+        return True
+    except Exception as error:
+        data = [file_name,error]
+        utils.append_to_csv_file(csv_file_path='invalid_sql/failure_logs.csv',
+                                 data=data)
+        logger.info(f'{sql_to_validate} was invalid')
+        return False
 
 
 def create_bucket(bucket_name:str,
@@ -89,6 +73,6 @@ def create_bucket(bucket_name:str,
     logger.info(f'Successfully created bucket: gs://{bucket_name}')
 
 if __name__ == "__main__":
-    validate_sql(sql_to_validate=bq_migration_config['output'],
-                 output_validated_sql=bq_migration_config['validated_sql_output'],
-                 output_invalid_sql=bq_migration_config['invalid_sql_output'])
+    source = f'{bq_migration_config["transpiled_sql"]}/{bq_migration_config["file_name"]}'
+    validate_sql(sql_to_validate=source,
+                 output_validated_sql=bq_migration_config['validated_sql_output'])

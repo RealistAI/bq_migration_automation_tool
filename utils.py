@@ -1,4 +1,6 @@
 import yaml
+import csv
+
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -16,11 +18,20 @@ def write_list_to_file(file, list_to_write):
             file_to_write_to.write(element_with_new_line)
     logger.info(f"Successfully added list elements to {file}")
 
-def create_file(file_name):
-    new_file = open(file_name, 'x')
-    new_file.close()
+def append_to_csv_file(cav_file_path:str,
+                       data:list):
+    with open(file_name, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(data)
 
-    logger.info(f'Successfully created file "{file_name}"')
+def copy_file(path_of_file_to_copy,
+              path_to_target):
+    logger.info(f"Coping {path_of_file_to_copy} to {path_to_target}")
+    with open (path_of_file_to_copy, 'r') as origin_file:
+        data = origin_file.read()
+    with open (path_to_target, 'w') as target_file:
+        target_file.write(data)
+
 
 
 
