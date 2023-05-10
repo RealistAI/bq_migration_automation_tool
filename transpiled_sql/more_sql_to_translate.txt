@@ -1,7 +1,0 @@
--- Translation time: 2023-05-09T23:49:22.804227Z
--- Translation job ID: 8daab278-287c-40ac-8905-3618d1262f64
--- Source: dwh_preprocessed/more_sql_to_translate.txt
--- Translated from: Teradata
--- Translated to: BigQuery
-
--- ERROR_OTHER: Parser failed: After kwa_select year, got tok_comma(,) but expected [tok_lpar, tok_lpar(lookahead=<type>)].

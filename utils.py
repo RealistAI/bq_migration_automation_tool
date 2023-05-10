@@ -18,10 +18,11 @@ def write_list_to_file(file, list_to_write):
             file_to_write_to.write(element_with_new_line)
     logger.info(f"Successfully added list elements to {file}")
 
-def append_to_csv_file(cav_file_path:str,
+def append_to_csv_file(csv_file_path:str,
                        data:list):
-    with open(file_name, 'a', newline='') as csvfile:
+    with open(csv_file_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
+        writer.writerow(['file_name','error_message'])
         writer.writerow(data)
 
 def copy_file(path_of_file_to_copy,
@@ -32,6 +33,9 @@ def copy_file(path_of_file_to_copy,
     with open (path_to_target, 'w') as target_file:
         target_file.write(data)
 
-
-
-
+def remove_non_alphanumeric(string):
+    alphanumeric_chars = []
+    for char in string:
+        if char.isalnum():
+            alphanumeric_chars.append(char)
+    return ''.join(alphanumeric_chars)

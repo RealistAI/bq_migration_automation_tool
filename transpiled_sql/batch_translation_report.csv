@@ -1,2 +1,0 @@
-Timestamp,FilePath,FileName,SourceType,ScriptLine,ScriptColumn,TranspilerComponent,Environment,ObjectName,Severity,Category,Message,ScriptContext,Action
-1683676162852,gs://dwh_preprocessed/more_sql_to_translate.txt,more_sql_to_translate.txt,SQL,0,11,TranspilerCompiler:compiler,Teradata: bigquery-public-data,,ERROR,SyntaxError,"After kwa_select year, got tok_comma(,) but expected [tok_lpar, tok_lpar(lookahead=<type>)].","SELECT year{>HERE<},",Check that the input SQL is correct and classified in the proper dialect.
