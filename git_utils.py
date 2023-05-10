@@ -7,8 +7,7 @@ import requests
 from datetime import datetime as d
 
 
-def clone_github_repo():
-    token = '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'
+def clone_github_repo(token):
     g = Github(token)
     for repo in g.get_user().get_repos():
         print(repo.full_name)
