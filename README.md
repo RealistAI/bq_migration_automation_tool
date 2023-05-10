@@ -1,1 +1,0 @@
-# bq_migration_automation_tool
