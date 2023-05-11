@@ -47,12 +47,15 @@ def validate_sql(sql_to_validate,
                              dry_run=True)
 
     if isinstance(query_job, bigquery.QueryJob):
+        maximum_billed_bytes = query_job.maximum_bytes_billed
         return True
+
     elif isinstance(query_job, Exception):
-        data = [file_name,query_job]
         current_datetime = str(datetime.datetime.now())
+        data = {'file_name':file_name,'error_message':query_job,'time_stamp':current_datetime,
+                'error_type':type(query_job)}
         stripped_datetime = utils.remove_non_alphanumeric(string=current_datetime)
         csv_file_path = f'{config.FAILURE_LOGS}/{stripped_datetime}.csv'
-        utils.append_to_csv_file(csv_file_path=csv_file_path,
+        utils.create_failure_log(failure_log_file=csv_file_path,
                                  data=data)
         return False

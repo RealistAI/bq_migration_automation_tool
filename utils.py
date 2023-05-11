@@ -1,6 +1,7 @@
 import yaml
 import config
 import csv
+import os
 
 
 import logging
@@ -13,20 +14,33 @@ def update_default_database():
         data = yaml.safe_load(file)
         data['default_database'] = f'{config.PROJECT}'
 
-def append_to_csv_file(csv_file_path:str,
-                       data:list[str:str]):
-    ''' Writes elements of a list to csv file 
+def create_failure_log(failure_log_file:str,
+                       data:dict):
+    ''' Extracts failure log elements from dictionary and writes them to a csv file
 
-    Writes a CSV file with the header 'file_name,error_message' and 
-    then writes the provided strings in the row after.
+    Creates failure log using the file_name and error_message from the dictionary on
+    the data variable. Writes CSV file in the directory within the failure_logs_directory
+    variable, adds the header 'file_name,error_message', and adds the constructed
+    failure log to the CSV file as the first entry.
 
     Args:
-    csv_file_path: Path to the file you want to write
-    data: A list containing a two elements
+    failure_log_file: The fully qulified path to and name of the failure logs file.
+                               'failure_logs_dir/failure_log.csv'
+    data: A dict containing a file_name and a error message.
+          {'file_name':'qwerty.sql','error_message':'stuff broke'}
     '''
-    with open(csv_file_path, 'w', newline='') as csvfile:
+    try:
+        file_name = data['file_name']
+        error_type = data['error_type']
+        error_message = data['error_message']
+        time_stamp = data['time_stamp']
+        failure_log = [file_name,error_type,error_message,time_stamp]
+    except KeyError as error:
+        logger.info('''Unable to create valid failure logs with the given data.''')
+
+    with open(failure_log_file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['file_name','error_message'])
+        writer.writerow(['file_name','error_type','error_message','time_stamp'])
         writer.writerow(data)
 
 def copy_file(path_of_file_to_copy,
@@ -63,3 +77,26 @@ def remove_non_alphanumeric(string):
         if char.isalnum():
             alphanumeric_chars.append(char)
     return ''.join(alphanumeric_chars)
+
+def get_latest_file(directory):
+    '''
+
+    '''
+    files = os.listdir(directory)
+    max_file = None
+    max_number = -1
+
+    for file in files:
+        if file.endswith('.txt'):
+            try:
+                number = int(os.path.splitext(file)[0])
+                if number > max_number:
+                    max_number = number
+                    max_file = file
+            except ValueError:
+                pass
+
+    if max_file is not None:
+        return os.path.join(directory, max_file)
+    else:
+        return None
