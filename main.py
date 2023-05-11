@@ -11,9 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    # This script deletes all files in validated sql prior to running. 
-    # pull the latest sql from the uc4 sql repo
-
+    # Translates given SQL to Google dialect
     failures = 0
 
     os.system(f'''
