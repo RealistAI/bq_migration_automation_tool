@@ -22,4 +22,5 @@ TARGET_SQL_PATH = Path(BASE_PATH, 'UC4_SQL', 'bigquery_sql')
 CONFIG = Path(os.getcwd(), 'config', 'config.yaml')
 MAPPING_CONFIG_FILE = Path(os.getcwd(), 'config', 'name_mapping.json')
 FAILURE_LOGS = Path(os.getcwd(), 'failure_logs')
+TEST_CREDENTIALS_PATH = Path(BASE_PATH, 'credentials', 'bq_migration_tool_git_token.py')
 DEBUG = True
