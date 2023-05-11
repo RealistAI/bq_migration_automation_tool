@@ -2,7 +2,8 @@
 
 The BigQuery Migration Automation Tool is used to batch transpile all of the Simba SQLs and push those transpiled SQLs to github.
 ## Architecture 
-![Simba Risk Mitigation drawio](https://github.com/RealistAI/bq_migration_automation_tool/assets/99982739/6efbd3fd-1dfc-4036-a334-df39bef6cfec)
+
+![Simba Risk Mitigation drawio](https://github.com/RealistAI/bq_migration_automation_tool/assets/99982739/7a40c2bd-fff9-4a35-b735-a614f320a5e7)
 
 ## Tools Used
 BQ Migration CLI - CLI tooling built by the BigQuery Migration Service team that allows you to interact with the BigQuery Migration Service.
