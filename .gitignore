@@ -1,8 +1,7 @@
 # input and output folders 
-invalid_sql/*
-source_sql/*
-validated_sql/*
-git_repo/*
+failure_logs/*
+translation_reports/*
+tranpiled_sql/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

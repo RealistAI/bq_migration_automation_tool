@@ -1,7 +1,9 @@
 import os
 import config
 import gcp_utils
+import git_utils
 from pathlib import Path
+import setup
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -45,11 +47,17 @@ def main():
     {failures} failed validations. See invalid_sql/failure_logs.csv\n'''
     logger.info(message)
 
+    repo_directory_name = setup.get_path_from_git_repo(repo_dir=config.UC4_SQL_REPO['path'])
 
+    logger.info(f'Pushing validated SQL to {repo_directory_name}')
+    commit_message = f'Adding transpiled and validated GoogleSQL to the {repo_directory_name}'
 
-# Git integration
-# Create branch
-# Commit and start PR
+    branch_name = git_utils.push_to_git(local_repo=config.TARGET_SQL_PATH,
+                                        remote_repo=config.UC4_SQL_REPO,
+                                        commit_message=commit_message,
+                                        username=username,
+                                        token=token)
+
 if __name__ == "__main__":
     main()
 

@@ -1,30 +1,41 @@
 import os
-from google.cloud import bigquery
-from google.cloud import storage
-from github import Github
-import json
-import requests
-from datetime import datetime as d
+import config
+import setup
+import datetime
+import utils
+from pathlib import Path
+
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
-def clone_github_repo(token):
-    g = Github(token)
-    for repo in g.get_user().get_repos():
-        print(repo.full_name)
-    repo = g.get_repo('RealistAI/UC4_SQL')
-    content = repo.get_contents('')
-    while content:
-        file_content = content.pop(0)
-        print(dir(file_content))
-        if file_content.type == 'dir':
-            content.extend(repo.get_contents(file_content.path))
-        else:
-            file_name = f'git_repo/{file_content.name}'
-            with open (file_name, 'w') as file:
-                file.write(file_content.content)
+def push_to_git(local_repo,
+                remote_repo,
+                username,
+                token,
+                commit_message):
+    current_datetime = str(datetime.datetime.now())
+    stripped_current_datetime = utils.remove_non_alphanumeric(string=current_datetime)
+    branch_name = f'bq_migration_tool_batch_{stripped_current_datetime}'
+    base_path = config.BASE_PATH
 
+    current_directory = os.getcwd()
+    os.chdir(base_path)
+    repo_directory_name = setup.get_path_from_git_repo(remote_repo['path'])
 
+    assert repo_directory_name is not None, \
+        f"'{repo['path']}' is not a valid git repo."
 
+    if os.path.exists(Path(base_path, repo_directory_name)):
+        os.chdir(repo_directory_name)
+        os.system(f'git checkout -b {branch_name}')
+        os.system(f'git add .')
+        os.system(f'git commit -m "{commit_message}"')
+        os.system(f'git push --set-upstream origin {branch_name}')
+        # os.system(f'{username}')
+        # os.system(f'{token}')
 
-if __name__ == "__main__":
-    clone_github_repo()
+    os.chdir(current_directory)
+    return branch_name
+
