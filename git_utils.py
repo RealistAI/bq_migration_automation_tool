@@ -12,8 +12,6 @@ logger = logging.getLogger(__name__)
 
 def push_to_git(local_repo,
                 remote_repo,
-                username,
-                token,
                 commit_message):
     current_datetime = str(datetime.datetime.now())
     stripped_current_datetime = utils.remove_non_alphanumeric(string=current_datetime)

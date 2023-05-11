@@ -54,9 +54,7 @@ def main():
 
     branch_name = git_utils.push_to_git(local_repo=config.TARGET_SQL_PATH,
                                         remote_repo=config.UC4_SQL_REPO,
-                                        commit_message=commit_message,
-                                        username=username,
-                                        token=token)
+                                        commit_message=commit_message)
 
 if __name__ == "__main__":
     main()
