@@ -40,13 +40,14 @@ Output all of the SQLs to the output path specified in the config file.
 ## Dry Run
 The next step is for the tool to perform a dry-run of each of the SQLs that have been converted. The dry-run ensures that the SQLs are syntactically correct.
 
-For each of the SQLs in the output path, the tool does a dry-run to validate the SQL.
-For the SQLs that have bind variables, the tool substitutes those values using a predefined mapping. E.G
+For each of the SQLs in the output path, the tool does a dry-run to validate the SQL.\
+For the SQLs that have bind variables, the tool substitutes those values using a predefined mapping. 
+E.G
 
 `SELECT * FROM ${project}.${dataset}.table;`
 
 If any of the dry-run fails:
-The tool saves the bad SQl file to the `failure_logs` folder specified in the config.py file.
+The tool saves the bad SQl file to the `failure_logs` folder specified in the config.py file.\
 The tool adds a record to the `{current_datetime}.csv` file that will contain the file path to the invalid SQL and the error message returned by BigQuery. \
 E.G:\
 `/invalid_sql/my_sql.sql, BigQuery Error Message.`
@@ -56,10 +57,10 @@ If the dry-run succeeds, the tool copies the converted sql to the `validated_sql
 ## Git Integration
 If there are any new files in the `validated_sql` folder the tool does the following:
 
-Creates a new git branch in the UC4 SQL Repo named `bq_migration_tool_batch_{current_datetime}`.
-Copies the SQL files from the `validated_sql` folder to the UC4 SQL Repo. 
-Commits changes and push those changes to Git.
-Creates a Pull Request to the main branch of the UC4 SQL Repo.
+Creates a new git branch in the UC4 SQL Repo named `bq_migration_tool_batch_{current_datetime}`.\
+Copies the SQL files from the `validated_sql` folder to the UC4 SQL Repo. \
+Commits changes and push those changes to Git.\
+Creates a Pull Request to the main branch of the UC4 SQL Repo.\
 
 ## Usage
 To run the tool, the user will run the following command:
