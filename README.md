@@ -46,7 +46,7 @@ E.G:
 `SELECT * FROM ${project}.${dataset}.table;`
 
 If any of the dry-run fails:
-The tool saves the bad SQl file to the `failure_logs` folder specified in the config.py file.\
+The tool saves the bad SQL file to the `failure_logs` folder specified in the config.py file.\
 The tool adds a record to the `{current_datetime}.csv` file that will contain the file path to the invalid SQL and the error message returned by BigQuery. 
 E.G:
 `/invalid_sql/my_sql.sql, BigQuery Error Message.`
@@ -59,15 +59,15 @@ If there are any new files in the `validated_sql` folder the tool does the follo
 Creates a new git branch in the UC4 SQL Repo named `bq_migration_tool_batch_{current_datetime}`.\
 Copies the SQL files from the `validated_sql` folder to the UC4 SQL Repo. \
 Commits changes and push those changes to Git.\
-Creates a Pull Request to the main branch of the UC4 SQL Repo.\
 
 ## Usage
 To run the tool, the user will run the following command:
+`git clone https://github.com/RealistAI/bq_migration_automation_tool.git` 
 `Make`
 
-The config file will contain default values for: \
-source_file_path\
-target_file_path\
-git_repo 
-
+The config file will contain default values for all the parameters we will need such as:\
+TRANSLATED_BUCKET\
+SQL_TO_VALIDATE\
+TARGET_SQL_PATH\
+CONFIG
 
