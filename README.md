@@ -41,7 +41,7 @@ The next step is for the tool to perform a dry-run of each of the SQLs that have
 For each of the SQLs in the output path, the tool does a dry-run to validate the SQL.
 For the SQLs that have bind variables, the tool substitutes those values using a predefined mapping. E.G
 
-SELECT * FROM ${project}.${dataset}.table;
+`SELECT * FROM ${project}.${dataset}.table;`
 
 If any of the dry-run fails:
 The tool saves the bad SQl file to the `failure_logs` folder specified in the config.py file.
