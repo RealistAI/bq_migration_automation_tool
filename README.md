@@ -41,15 +41,14 @@ Output all of the SQLs to the output path specified in the config file.
 The next step is for the tool to perform a dry-run of each of the SQLs that have been converted. The dry-run ensures that the SQLs are syntactically correct.
 
 For each of the SQLs in the output path, the tool does a dry-run to validate the SQL.\
-For the SQLs that have bind variables, the tool substitutes those values using a predefined mapping. 
-E.G
-
+For the SQLs that have bind variables, the tool substitutes those values using a predefined mapping. \
+E.G: 
 `SELECT * FROM ${project}.${dataset}.table;`
 
 If any of the dry-run fails:
 The tool saves the bad SQl file to the `failure_logs` folder specified in the config.py file.\
-The tool adds a record to the `{current_datetime}.csv` file that will contain the file path to the invalid SQL and the error message returned by BigQuery. \
-E.G:\
+The tool adds a record to the `{current_datetime}.csv` file that will contain the file path to the invalid SQL and the error message returned by BigQuery. 
+E.G:
 `/invalid_sql/my_sql.sql, BigQuery Error Message.`
 
 If the dry-run succeeds, the tool copies the converted sql to the `validated_sql` folder specified in the config.py file.
