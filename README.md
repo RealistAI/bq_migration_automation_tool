@@ -61,8 +61,8 @@ Copies the SQL files from the `validated_sql` folder to the UC4 SQL Repo. \
 Commits changes and push those changes to Git.\
 
 ## Usage
-To run the tool, the user will run the following command:
-`git clone https://github.com/RealistAI/bq_migration_automation_tool.git` 
+To run the tool, the user will run the following command:\
+`git clone https://github.com/RealistAI/bq_migration_automation_tool.git` \
 `Make`
 
 The config file will contain default values for all the parameters we will need such as:\
