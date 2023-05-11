@@ -60,7 +60,7 @@ Creates a Pull Request to the main branch of the UC4 SQL Repo.
 
 ## Usage
 To run the tool, the user will run the following command:
-Make
+`Make`
 
 The config file will contain default values for:
 source_file_path
