@@ -51,10 +51,10 @@ The tool adds a record to the `{current_datetime}.csv` file that will contain th
 If the dry-run succeeds, the tool copies the converted sql to the `validated_sql` folder specified in the config.py file.
 
 ## Git Integration
-If there are any new files in the ‘validated_sql’ folder the tool does the following:
+If there are any new files in the `validated_sql` folder the tool does the following:
 
-Creates a new git branch in the UC4 SQL Repo named ‘bq_migration_tool_batch_{current_datetime}’.
-Copies the SQL files from the ‘validated_sql’ folder to the UC4 SQL Repo. 
+Creates a new git branch in the UC4 SQL Repo named `bq_migration_tool_batch_{current_datetime}`.
+Copies the SQL files from the `validated_sql` folder to the UC4 SQL Repo. 
 Commits changes and push those changes to Git.
 Creates a Pull Request to the main branch of the UC4 SQL Repo.
 
