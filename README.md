@@ -26,7 +26,7 @@ Folder Structure:
 </pre>
 
 The Teradata SQLs folder contains all of the Teradata SQLs for the UC4 Jobs.
-The BigQuery SQLs folder contains all of the converted BigQuery SQLs for the uc4 Jobs
+The BigQuery SQLs folder contains all of the converted BigQuery SQLs for the UC4 Jobs
 
 ## Transpilation
 The first step in the tool is to convert the Teradata SQLs to BigQuery SQLs. It does the work in this order:
