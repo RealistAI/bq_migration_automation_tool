@@ -19,7 +19,7 @@ Folder Structure:
 |-- Teradata SQLs
     |--Sub Folders
         |-- my_sql.sql
-     … 
+        … 
 |-- BigQuery SQLs
     |--Sub Folders
         |-- my_sql.sql
