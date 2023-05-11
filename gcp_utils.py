@@ -30,7 +30,14 @@ def submit_query(query:str,
 
 
 def validate_sql(sql_to_validate,
-                 file_name):
+                 file_name) -> bool:
+    """
+    Validates the .sql files that are being brought in. If they are not valid sql, the file containing the invalid sql is renamed and appended to the 'failure_logs{stripped_datetime}.csv' file.
+
+    Args:
+    sql_to_validate: the path to the sql to validate.
+    file_name: the name of the sql file being validated.
+    """
     logger.info(f'Validating {sql_to_validate}')
     with open (sql_to_validate, 'r') as file:
         data = file.read()
