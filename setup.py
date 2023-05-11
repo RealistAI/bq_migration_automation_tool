@@ -3,9 +3,12 @@ from pathlib import Path
 import re
 import os
 
-def create_path_if_not_exists(path: Path):
+def create_path_if_not_exists(path: Path) -> None:
     """
     Create the file path if it does not exist
+
+    Args:
+    path: the file path we are creating if it doesnt exist.
     """
     if not os.path.exists(path):
         os.makedirs(path)
@@ -14,6 +17,9 @@ def get_path_from_git_repo(repo_dir: str) -> str|None:
     """
     Given a repo like https://github.com/RealistAI/UC4_SQL.git return
     UC4_SQL
+
+    Args:
+    repo_dir:  the full GitHub path of the repo that we are using to extract just the repository name.
     """
     match = re.search(r'[a-zA-Z-0-9_]*(?=\.git)',  repo_dir)
 
@@ -22,12 +28,16 @@ def get_path_from_git_repo(repo_dir: str) -> str|None:
 
     return None
 
-
-def get_git_repo(repo: dict, base_path: Path):
+def get_git_repo(repo: dict,
+                 base_path: Path) -> None:
     """
     Given a repo name and a base path, get the latest version of the git repo
     If the repo is already downoaded to the current file system, pull the
     latest version
+
+    Args:
+    repo: Name of the Github repository you want to pull from
+    base_path: The path leading to the Github Repository
     """
     current_dir = os.getcwd()
     os.chdir(base_path)

@@ -10,9 +10,17 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-def push_to_git(local_repo,
+def push_to_git(#local_repo,
                 remote_repo,
-                commit_message):
+                commit_message) -> str:
+    """
+    creates a unique branch name and pushes the changes to the Github Repository.
+
+    Args:
+    local_repo: Not actually used in the function
+    remote_repo: The Github Repository that the changes are being pushed to.
+    commit_message: The commit message that is being pushed to the Github Repository alone with the necessary changes.
+    """
     current_datetime = str(datetime.datetime.now())
     stripped_current_datetime = utils.remove_non_alphanumeric(string=current_datetime)
     branch_name = f'bq_migration_tool_batch_{stripped_current_datetime}'
