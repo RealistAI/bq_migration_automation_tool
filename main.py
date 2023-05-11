@@ -1,5 +1,6 @@
 import os
 import config
+import utils
 import gcp_utils
 import git_utils
 from pathlib import Path
@@ -48,10 +49,12 @@ def main():
                 os.system(f'cp {config.SQL_TO_VALIDATE}/{file_name} {config.TARGET_SQL_PATH}/')
                 logger.info(f'{file_name} validated and added to {config.TARGET_SQL_PATH}')
             else:
+                failure_log_path = config.FAILURE_LOGS
+                failure_log = utils.get_latest_file(failure_log_path)
                 failures += 1
 
     message = f'''\nAll files in {config.TARGET_SQL_PATH} have been processed with 
-    {failures} failed validations. See failure_logs/\n'''
+    {failures} failed validations. For more details view {failure_log}\n'''
     logger.info(message)
 
     repo_directory_name = setup.get_path_from_git_repo(repo_dir=config.UC4_SQL_REPO['path'])
@@ -59,8 +62,7 @@ def main():
     logger.info(f'Pushing validated SQL to {repo_directory_name}')
     commit_message = f'Adding transpiled and validated GoogleSQL to the {repo_directory_name}'
 
-    branch_name = git_utils.push_to_git(local_repo=config.TARGET_SQL_PATH,
-                                        remote_repo=config.UC4_SQL_REPO,
+    branch_name = git_utils.push_to_git(remote_repo=config.UC4_SQL_REPO,
                                         commit_message=commit_message)
 
 if __name__ == "__main__":

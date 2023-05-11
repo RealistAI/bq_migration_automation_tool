@@ -10,14 +10,12 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-def push_to_git(#local_repo,
-                remote_repo,
+def push_to_git(remote_repo,
                 commit_message) -> str:
     """
     creates a unique branch name and pushes the changes to the Github Repository.
 
     Args:
-    local_repo: Not actually used in the function
     remote_repo: The Github Repository that the changes are being pushed to.
     commit_message: The commit message that is being pushed to the Github Repository alone with the necessary changes.
     """
@@ -39,8 +37,6 @@ def push_to_git(#local_repo,
         os.system(f'git add .')
         os.system(f'git commit -m "{commit_message}"')
         os.system(f'git push --set-upstream origin {branch_name}')
-        # os.system(f'{username}')
-        # os.system(f'{token}')
 
     os.chdir(current_directory)
     return branch_name
