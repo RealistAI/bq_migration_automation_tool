@@ -24,6 +24,7 @@ Folder Structure:
     |--Sub Folders\
         |-- my_sql.sql
 </pre>
+
 The Teradata SQLs folder contains all of the Teradata SQLs for the UC4 Jobs.
 The BigQuery SQLs folder contains all of the converted BigQuery SQLs for the uc4 Jobs
 
