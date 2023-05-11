@@ -45,8 +45,8 @@ For the SQLs that have bind variables, the tool substitutes those values using a
 
 If any of the dry-run fails:
 The tool saves the bad SQl file to the `failure_logs` folder specified in the config.py file.
-The tool adds a record to the `{current_datetime}.csv` file that will contain the file path to the invalid SQL and the error message returned by BigQuery. 
-\E.G:\
+The tool adds a record to the `{current_datetime}.csv` file that will contain the file path to the invalid SQL and the error message returned by BigQuery. \
+E.G:\
 `/invalid_sql/my_sql.sql, BigQuery Error Message.`
 
 If the dry-run succeeds, the tool copies the converted sql to the `validated_sql` folder specified in the config.py file.
