@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 google-cloud-bigquery = "*"
+pytest = "*"
+google-cloud-storage = "*"
+pyyaml = "*"
 
 [dev-packages]
 
