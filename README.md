@@ -66,37 +66,37 @@ and run the Makefile `make`
 
 ## config.py
 
-### DWH_MIGRATION_TOOL_REPO
+##### DWH_MIGRATION_TOOL_REPO
 The repository url and branch containing the dwh-migration-tools
 
-### UC4_SQL_REPO
+##### UC4_SQL_REPO
 The repository url and branch containing the SQL's to translate
 
-### PROJECT
+##### PROJECT
 The name of the Google Cloud Platform project that will performing the bulk translation
 
-### PREPROCESED_BUCKET
+##### PREPROCESED_BUCKET
 A Google Cloud Storage bucket that will be used by `bqms-run` as a staging area for the translation process
 
-### SOURCE_SQL_PATH
+##### SOURCE_SQL_PATH
 The directory in your Github repository containing .sql files for translation and validation
 
-### TRANSLATED_BUCKET
+##### TRANSLATED_BUCKET
 A Google Cloud Storage bucket that will be used by `bqms-run` to store translated files before dumping 
 them back into the local file system.
 
-### SQL_TO_VALIDATE
+##### SQL_TO_VALIDATE
 The local directory that `bqms-run` will use to store the results of the run.
 
-## TARGET_SQL_PATH
+##### TARGET_SQL_PATH
 The directory within the origin Github repository to contain the translated and validated .sql files
 
-### CONFIG
+##### CONFIG
 The path to the dwh-migration-tools config.yaml file. 
 
-### MAPPING_CONFIG_FILE
+##### MAPPING_CONFIG_FILE
 The path to any given object name mapping configuration files.
 
-### FAILURE_LOGS
+##### FAILURE_LOGS
 The target destination for the failure logs contructed during the validation process.
 
