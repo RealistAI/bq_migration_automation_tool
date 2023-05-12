@@ -2,7 +2,7 @@ import os
 import config
 import setup
 import datetime
-import utils
+import utils.utils
 from pathlib import Path
 
 import logging

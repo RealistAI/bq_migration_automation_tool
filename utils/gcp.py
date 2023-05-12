@@ -2,7 +2,7 @@ import datetime
 import config
 from google.cloud import bigquery
 from google.cloud import storage
-import utils
+import utils.utils
 import os
 
 import logging

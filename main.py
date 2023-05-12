@@ -1,8 +1,8 @@
 import os
 import config
-import utils
-import gcp_utils
-import git_utils
+import utils.utils
+from utils import gcp
+from utils import git
 from pathlib import Path
 import setup
 
