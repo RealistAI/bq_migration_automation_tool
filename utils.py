@@ -3,16 +3,10 @@ import config
 import csv
 import os
 
-
 import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-def update_default_database():
-    # Updates the dwh config.yaml with the GCP project specified in the config.py
-    with open(config.CONFIG , 'r') as file:
-        data = yaml.safe_load(file)
-        data['default_database'] = f'{config.PROJECT}'
 
 def create_failure_log(failure_log_file:str,
                        data:dict):
@@ -41,7 +35,7 @@ def create_failure_log(failure_log_file:str,
     with open(failure_log_file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['file_name','error_type','error_message','time_stamp'])
-        writer.writerow(data)
+        writer.writerow(failure_log)
 
 def copy_file(path_of_file_to_copy,
               path_to_target):

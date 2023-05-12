@@ -61,7 +61,6 @@ def setup():
     """
     Download the required repos and set the environment variables
     """
-
     create_path_if_not_exists(config.BASE_PATH)
 
     get_git_repo(repo=config.DWH_MIGRATION_TOOL_REPO,
@@ -69,5 +68,7 @@ def setup():
 
     get_git_repo(repo=config.UC4_SQL_REPO,
                  base_path=config.BASE_PATH)
+
+    create_path_if_not_exists(config.TARGET_SQL_PATH)
 if __name__ == "__main__":
     setup()
