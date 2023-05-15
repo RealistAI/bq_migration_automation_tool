@@ -2,9 +2,10 @@ import os
 import config
 import setup
 import datetime
-import utils.utils
+from utils import utils
+from utils import git
 from pathlib import Path
-
+import re
 import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ def push_to_git(remote_repo,
 
     current_directory = os.getcwd()
     os.chdir(base_path)
-    repo_directory_name = setup.get_path_from_git_repo(remote_repo['path'])
+    repo_directory_name = git.get_path_from_git_repo(remote_repo['path'])
 
     assert repo_directory_name is not None, \
         f"'{repo['path']}' is not a valid git repo."

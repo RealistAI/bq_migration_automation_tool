@@ -2,11 +2,21 @@ import yaml
 import config
 import csv
 import os
-
+from pathlib import Path
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+def create_path_if_not_exists(path: Path) -> None:
+    """
+    Create the file path if it does not exist
+
+    Args:
+    path: the file path we are creating if it doesnt exist.
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 def create_failure_log(failure_log_file:str,
                        data:dict):

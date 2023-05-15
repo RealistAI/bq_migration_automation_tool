@@ -6,12 +6,13 @@ import os
 from utils import gcp
 from pathlib import Path
 import config
+from conftest import run_setup
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class TestGCP:
-    def test_validate_sql_successfully(self):
+    def test_validate_sql_successfully(self, run_setup):
         files_to_ignore = ['batch_translation_report.csv','consumed_name_map.json']
         os.system(f'mv {config.SQL_TO_VALIDATE}/batch_translation_report.csv translation_reports')
         for file_name in os.listdir(config.SQL_TO_VALIDATE):
@@ -19,7 +20,7 @@ class TestGCP:
                 logger.info(f'Validating {file_name}')
                 sql_file_to_validate = f'{config.SQL_TO_VALIDATE}/{file_name}'
                 is_valid = gcp_utils.validate_sql(sql_to_validate=sql_file_to_validate,
-                                              file_name=file_name)
+                                                  file_name=file_name)
         assert is_valid == True
 
     def test_validate_sql_fail_due_to_invalid_sql(self):

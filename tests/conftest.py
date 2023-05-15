@@ -1,7 +1,6 @@
 import os
 import pytest
 
-pytest.fixture(scope='module', autouse=True)
+pytest.fixture(scope='module')
 def run_setup():
-    os.system("python3 setup.py",
-              "python3 main.py")
+    os.system("python3 setup.py")
