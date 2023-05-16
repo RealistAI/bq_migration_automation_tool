@@ -137,6 +137,7 @@ def failure_log(failure_log_data):
 
 @pytest.fixture
 def files_for_numeric_comparison():
+    os.system(f'rm -rf {config.FAILURE_LOGS}/*')
     file_with_lesser_number = f'{config.FAILURE_LOGS}/4963.csv'
     file_with_greater_number = f'{config.FAILURE_LOGS}/4982.csv'
     with open (file_with_lesser_number, 'w') as file:

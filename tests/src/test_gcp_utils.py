@@ -6,7 +6,6 @@ import os
 from utils import gcp
 from pathlib import Path
 import config
-from conftest import run_setup
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -19,7 +18,7 @@ class TestGCP:
             if file_name not in files_to_ignore:
                 logger.info(f'Validating {file_name}')
                 sql_file_to_validate = f'{config.SQL_TO_VALIDATE}/{file_name}'
-                is_valid = gcp_utils.validate_sql(sql_to_validate=sql_file_to_validate,
+                is_valid = gcp.validate_sql(sql_to_validate=sql_file_to_validate,
                                                   file_name=file_name)
         assert is_valid == True
 
@@ -37,3 +36,7 @@ class TestGCP:
 #    def test_submit_query_failed_due_to_invalid_query(self):
 #        pass
 
+
+@pytest.fixture
+def run_setup():
+    os.system('python setup.py')
