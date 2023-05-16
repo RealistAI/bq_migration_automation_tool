@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-def construct_failure_log(data: dict) -> list:
+def format_failure_log_data(data: dict) -> list:
     ''' Create a failure log from a given dictionary
 
     Verifies the dictionary contains the required keys, adds them to a list, and return it.
@@ -55,12 +55,12 @@ def create_failure_log(failure_log_path:Path,
           'error_message':'An error message',
           'timestamp':2023-05-12 15:47:25.067662}
     '''
-    failure_log = construct_failure_log(data)
+    failure_log = format_failure_log_data(data)
     header = ['file_name','error_type','error_message','time_stamp']
 
     write_data_to_csv_file(file_path=failure_log_path,
                            header=header,
-                           row=data)
+                           row=failure_log)
 
 def write_data_to_csv_file(file_path:Path,
                            row:list,
@@ -77,10 +77,13 @@ def write_data_to_csv_file(file_path:Path,
     '''
     file_path_string = str(file_path)
     with open (file_path_string, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        logger.info(f'Appending data to csv file:\n{header}\n{row}\n')
-        writer.writerow(header)
-        writer.writerow(row)
+        try:
+            writer = csv.writer(csvfile)
+            writer.writerow(header)
+            writer.writerow(row)
+        except Exception as error:
+            message = f'Failed to create failure log for run.\n{error}'
+            logger.error(message)
 
 def copy_file(path_of_file_to_copy,
               path_to_target):

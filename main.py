@@ -1,6 +1,6 @@
 import os
 import config
-import utils.utils
+from utils import utils
 from utils import gcp
 from utils import git
 from pathlib import Path
@@ -41,7 +41,7 @@ def main():
         if file_name not in files_to_ignore:
             logger.info(f'Validating {file_name}')
             sql_file_to_validate = f'{config.SQL_TO_VALIDATE}/{file_name}'
-            is_valid = gcp_utils.validate_sql(sql_to_validate=sql_file_to_validate,
+            is_valid = gcp.validate_sql(sql_to_validate=sql_file_to_validate,
                                               file_name=file_name)
 
             # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
@@ -57,13 +57,13 @@ def main():
     {failures} failed validations. For more details view {failure_log}\n'''
     logger.info(message)
 
-    repo_directory_name = setup.get_path_from_git_repo(repo_dir=config.UC4_SQL_REPO['path'])
+    repo_directory_name = git.get_path_from_git_repo(repo_dir=config.UC4_SQL_REPO['path'])
 
     logger.info(f'Pushing validated SQL to {repo_directory_name}')
     commit_message = f'Adding transpiled and validated GoogleSQL to the {repo_directory_name}'
 
-    branch_name = git_utils.push_to_git(remote_repo=config.UC4_SQL_REPO,
-                                        commit_message=commit_message)
+    branch_name = git.push_to_git(remote_repo=config.UC4_SQL_REPO,
+                                  commit_message=commit_message)
 
 if __name__ == "__main__":
     main()
