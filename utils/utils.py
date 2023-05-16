@@ -1,51 +1,86 @@
-import yaml
+from pathlib import Path
+from google.api_core import exceptions as gcp_exceptions
 import config
+import datetime
+import yaml
 import csv
 import os
-from pathlib import Path
 import logging
-
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-def create_path_if_not_exists(path: Path) -> None:
-    """
-    Create the file path if it does not exist
+
+def construct_failure_log(data: dict) -> list:
+    ''' Create a failure log from a given dictionary
+
+    Verifies the dictionary contains the required keys, adds them to a list, and return it.
 
     Args:
-    path: the file path we are creating if it doesnt exist.
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-def create_failure_log(failure_log_file:str,
-                       data:dict):
-    ''' Extracts failure log elements from dictionary and writes them to a csv file
-
-    Creates failure log using the file_name and error_message from the dictionary on
-    the data variable. Writes CSV file in the directory within the failure_logs_directory
-    variable, adds the header 'file_name,error_message', and adds the constructed
-    failure log to the CSV file as the first entry.
-
-    Args:
-    failure_log_file: The fully qulified path to and name of the failure logs file.
-                               'failure_logs_dir/failure_log.csv'
-    data: A dict containing a file_name and a error message.
-          {'file_name':'qwerty.sql','error_message':'stuff broke'}
+    data: A dict containing a the keys file_name, error_type, error message and timestamp.
+          {'file_name':'path',
+          'error_type':Exception,
+          'error_message':'An error message',
+          'timestamp':2023-05-12 15:47:25.067662}
     '''
-    try:
-        file_name = data['file_name']
-        error_type = data['error_type']
-        error_message = data['error_message']
-        time_stamp = data['time_stamp']
-        failure_log = [file_name,error_type,error_message,time_stamp]
-    except KeyError as error:
-        logger.info('''Unable to create valid failure logs with the given data.''')
+    failure_log = []
+    if isinstance(data, dict):
+        logger.info(f'Creating failure log from provided data')
+        try:
+            failure_log = [data['file_name'],
+                           data['error_type'],
+                           data['error_message'],
+                           data['timestamp']]
+            logger.info(failure_log)
+            return failure_log
+        except KeyError as error:
+            logger.error(f'"data" did not have the required keys to create failure log')
+            return
+    else:
+        logger.error(f'Unable to construct failure log with given data: {data}')
+        return
 
-    with open(failure_log_file, 'w', newline='') as csvfile:
+def create_failure_log(failure_log_path:Path,
+                       data:dict):
+    ''' Writes failure logs to a csv file in the directory specified
+
+    Takes the provided dictionary, validates that it has the required data for a failure log,
+    formats the failure log list as required, and writes the results and the proper headers
+    to a file in the given location.
+
+    Args:
+    failure_log_file: Path to file for failure log
+    data: A dict containing a the keys file_name, error_type, error message and timestamp.
+          {'file_name':'path',
+          'error_type':Exception,
+          'error_message':'An error message',
+          'timestamp':2023-05-12 15:47:25.067662}
+    '''
+    failure_log = construct_failure_log(data)
+    header = ['file_name','error_type','error_message','time_stamp']
+
+    write_data_to_csv_file(file_path=failure_log_path,
+                           header=header,
+                           row=data)
+
+def write_data_to_csv_file(file_path:Path,
+                           row:list,
+                           header:list):
+    ''' Takes a list of values and adds them to a csv file with the given header.
+
+    The list should contain a nested list for each row, if only a single list is given,
+    it is written to a single row in the csv file.
+
+    Args:
+    file_name: The name of a existing csv file to write the data to.
+    rows: A list of elements representing a row to append to the given csv file.
+          IE ['elementA','element1','elementB']
+    '''
+    file_path_string = str(file_path)
+    with open (file_path_string, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['file_name','error_type','error_message','time_stamp'])
-        writer.writerow(failure_log)
+        logger.info(f'Appending data to csv file:\n{header}\n{row}\n')
+        writer.writerow(header)
+        writer.writerow(row)
 
 def copy_file(path_of_file_to_copy,
               path_to_target):
@@ -56,7 +91,6 @@ def copy_file(path_of_file_to_copy,
     path_to_target: Path to the directory you want to copy the file into
     """
     logger.info(f"Coping {path_of_file_to_copy} to {path_to_target}")
-
     try:
         with open (path_of_file_to_copy, 'r') as origin_file:
             data = origin_file.read()
@@ -83,15 +117,17 @@ def remove_non_alphanumeric(string):
     return ''.join(alphanumeric_chars)
 
 def get_latest_file(directory):
-    '''
+    ''' Returns the file in the given directory with the highest datetime
 
+    Args:
+    directory: Directory to evaluate.
     '''
     files = os.listdir(directory)
     max_file = None
     max_number = -1
 
     for file in files:
-        if file.endswith('.txt'):
+        if file.endswith('.csv'):
             try:
                 number = int(os.path.splitext(file)[0])
                 if number > max_number:
@@ -104,3 +140,17 @@ def get_latest_file(directory):
         return os.path.join(directory, max_file)
     else:
         return None
+
+def create_path_if_not_exists(path) -> None:
+    """
+    Create the file path if it does not exist
+
+    Args:
+    path: the file path we are creating if it doesnt exist.
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+
+
