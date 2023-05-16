@@ -1,6 +1,0 @@
-file_name,error_message
-bad_sql.sql,"400 POST https://bigquery.googleapis.com/bigquery/v2/projects/michael-gilbert-dev/jobs?prettyPrint=false: Syntax error: Unexpected end of statement at [8:1]
-
-Location: None
-Job ID: 150696d8-6281-4d9c-9b14-01aff249ef7d
-"
