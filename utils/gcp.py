@@ -22,9 +22,9 @@ def submit_query(query:str,
     job_config = bigquery.QueryJobConfig(dry_run=dry_run)
     try:
         logger.info(f"Submitting query to BigQuery:\n{query}\n")
-        query_job = client.query(query=query,
-                                 job_config=job_config)
-        return query_job
+        query_results = client.query(query=query,
+                                 job_config=job_config).result()
+        return query_results
     except Exception as error:
         return error
 

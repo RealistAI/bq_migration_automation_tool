@@ -45,3 +45,5 @@ FAILURE_LOGS = Path(os.getcwd(), 'failure_logs')
 
 # Debug mode?
 DEBUG = True
+
+DATASET = "UC4_Jobs"

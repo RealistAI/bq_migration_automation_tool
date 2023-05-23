@@ -5,7 +5,7 @@ from utils import gcp
 from utils import git
 from pathlib import Path
 import setup
-
+import sort_queries as s
 import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -35,6 +35,7 @@ def main():
     ''')
 
     # Iterate through BQMS output and validate transpiled SQL
+    s.sort_queries(config.PROJECT, config.DATASET)
     files_to_ignore = ['batch_translation_report.csv','consumed_name_map.json']
     os.system(f'mv {config.SQL_TO_VALIDATE}/batch_translation_report.csv translation_reports')
     for file_name in os.listdir(config.SQL_TO_VALIDATE):
@@ -53,7 +54,7 @@ def main():
                 failure_log = utils.get_latest_file(failure_log_path)
                 failures += 1
 
-    message = f'''\nAll files in {config.TARGET_SQL_PATH} have been processed with 
+    message = f'''\nAll files in {config.TARGET_SQL_PATH} have been processed with
     {failures} failed validations. For more details view {failure_log}\n'''
     logger.info(message)
 

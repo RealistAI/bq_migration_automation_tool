@@ -8,6 +8,7 @@ google-cloud-bigquery = "*"
 pytest = "*"
 google-cloud-storage = "*"
 pyyaml = "*"
+pandas = "*"
 
 [dev-packages]
 
