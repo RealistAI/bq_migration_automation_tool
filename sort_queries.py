@@ -32,6 +32,3 @@ def sort_queries(project,
             with open(sql_path, 'r') as sql_file:
                 sql_data += sql_file.read()
 
-    # We have all of the SQL files for this job
-    # Submit sql_data to BigQuery for dry-run
-
