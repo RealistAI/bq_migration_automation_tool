@@ -22,7 +22,7 @@ def sort_queries(project_id,
         distinct_job_query_results = gcp.submit_query(query=distinct_job_query,
                                                       dry_run="False")
     except Exception as error:
-         return error
+        return error
 
     for row in distinct_job_query_results:
         sql_data = list()
