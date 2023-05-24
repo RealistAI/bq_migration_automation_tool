@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 def create_transpilation_log_table(project_id,
                                    dataset_id) -> None:
     """
-    creates a table with the transpilation logs of the sqls being dry run. it shows the name of the job, the status of either success or fail and the runtime of the dry run.
+    creates a table with the transpilation logs of the sqls being dry run. it shows the name of the job, the status of either success or fail and the when the dry run began.
 
     Args:
     project_id: the project being used to create the transpilation_log table.
