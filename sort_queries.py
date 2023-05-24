@@ -44,3 +44,4 @@ def sort_queries(project_id,
         uc4_jobs.append(sql_data)
     print(f"uc4 jobs: {uc4_jobs}")
     return uc4_jobs
+
