@@ -35,13 +35,11 @@ def main():
     ''')
 
     # Iterate through BQMS output and validate transpiled SQL
-    s.sort_queries(config.PROJECT, config.DATASET)
-    files_to_ignore = ['batch_translation_report.csv','consumed_name_map.json']
-    os.system(f'mv {config.SQL_TO_VALIDATE}/batch_translation_report.csv translation_reports')
-    for file_name in os.listdir(config.SQL_TO_VALIDATE):
-        if file_name not in files_to_ignore:
-            logger.info(f'Validating {file_name}')
-            sql_file_to_validate = f'{config.SQL_TO_VALIDATE}/{file_name}'
+    uc4_jobs = s.sort_queries(config.PROJECT, config.DATASET)
+    for job in uc4_jobs:
+        for sql in job:
+            logger.info(f'Validating {sql}')
+            sql_file_to_validate = f'{config.SQL_TO_VALIDATE}/{sql}'
             is_valid = gcp_utils.validate_sql(sql_to_validate=sql_file_to_validate,
                                               file_name=file_name)
 
@@ -50,9 +48,9 @@ def main():
                 os.system(f'cp {config.SQL_TO_VALIDATE}/{file_name} {config.TARGET_SQL_PATH}/')
                 logger.info(f'{file_name} validated and added to {config.TARGET_SQL_PATH}')
             else:
-                failure_log_path = config.FAILURE_LOGS
-                failure_log = utils.get_latest_file(failure_log_path)
-                failures += 1
+               failure_log_path = config.FAILURE_LOGS
+               failure_log = utils.get_latest_file(failure_log_path)
+               failures += 1
 
     message = f'''\nAll files in {config.TARGET_SQL_PATH} have been processed with
     {failures} failed validations. For more details view {failure_log}\n'''
