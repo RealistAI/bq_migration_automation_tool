@@ -2,7 +2,7 @@ import datetime
 import config
 from google.cloud import bigquery
 from google.cloud import storage
-import utils.utils
+from utils import utils
 import os
 
 import logging
@@ -56,6 +56,6 @@ def validate_sql(sql_to_validate,
                 'error_type':type(query_job)}
         stripped_datetime = utils.remove_non_alphanumeric(string=current_datetime)
         csv_file_path = f'{config.FAILURE_LOGS}/{stripped_datetime}.csv'
-        utils.create_failure_log(failure_log_file=csv_file_path,
+        utils.create_failure_log(failure_log_path=csv_file_path,
                                  data=data)
         return False
