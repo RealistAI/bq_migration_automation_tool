@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class TestSortQueries:
     def test_sort_queries_successfully(self, create_directories):
         sort_queries = s.sort_queries(project_id=config.PROJECT, dataset_id=config.DATASET)
-        assert type(sort_queries) == type(dict())
+        assert type(sort_queries) == type(list())
 
     def test_sort_queries_fail_due_to_non_existent_project(self):
         with pytest.raises(Exception):

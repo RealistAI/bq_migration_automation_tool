@@ -17,22 +17,23 @@ def create_transpilation_log_table(project_id,
     client = bigquery.Client()
     try:
         create_table_query = client.query(f"""
-                                          CREATE TABLE IF NOT EXISTS {project_id}.{dataset_id}.transpilation_logs(
+                                          CREATE TABLE {project_id}.{dataset_id}.transpilation_logs(
                                               job_id STRING,
                                               status STRING,
                                               message STRING,
+                                              query STRING,
                                               run_time TIMESTAMP
                                           );""")
 
         results = create_table_query.result()
 
         for row in results:
-            logger.info(f"{row.url} : {row.view_count}")
+            print(f"{row.url} : {row.view_count}")
 
     except Exception as error:
-        logger.info(error)
+        print(error)
 
-#create_transpilation_log_table(config.PROJECT, config.DATASET)
+create_transpilation_log_table(config.PROJECT, config.DATASET)
 
 def transpile_logs_into_table(project_id,
                               dataset_id,
@@ -51,15 +52,16 @@ def transpile_logs_into_table(project_id,
     message: the error message.
     run_time: when the transpilation job ran.
     """
-    client= biquery.Client()
+    client= bigquery.Client()
     try:
         insert_changes_query = client.query(f"""
-                                            INSERT INTO {project_id}.{dataset_id}.transpilation_log (job, status, message, run_time)
-                                            VALUES ('{job}', '{status}', '{message}', '{run_time}')
+                                            INSERT INTO {project_id}.{dataset_id}.transpilation_logs (job_id, status, message, query, run_time)
+                                            VALUES ('{job_id}', '{status}', '{message}', '{query}', '{run_time}')
                                             """)
 
         results = insert_changes_query.result()
-        logger.info(results)
+        print(results)
+        return results
 
     except Exception as error:
-        logger.info(error)
+        print(error)

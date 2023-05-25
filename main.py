@@ -37,19 +37,18 @@ def main():
 
     # Iterate through BQMS output and validate transpiled SQL
     uc4_jobs = s.sort_queries(config.PROJECT, config.DATASET)
+    uc4_jobs = uc4_jobs.items()
     for job in uc4_jobs:
-        for sql in job:
-            logger.info(f'Validating {sql}')
-            sql_file_to_validate = f'{config.SQL_TO_VALIDATE}/{sql}'
-            is_valid = gcp_utils.validate_sql(sql_to_validate=sql_file_to_validate,
-                                              file_name=file_name)
+        logger.info(f'Validating {job[1]} for uc4 job {job[0]}')
+        is_valid = gcp.validate_sql(sql_strings=job[1],
+                                    uc4_chain_name=)
 
-            # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
-            if is_valid is True:
-                os.system(f'cp {config.SQL_TO_VALIDATE}/{file_name} {config.TARGET_SQL_PATH}/')
-                logger.info(f'{file_name} validated and added to {config.TARGET_SQL_PATH}')
-            else:
-               failures += 1
+        # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
+        if is_valid is True:
+            os.system(f'cp {config.SQL_TO_VALIDATE}/{sql} {config.TARGET_SQL_PATH}/')
+            logger.info(f'{job} validated and added to {config.TARGET_SQL_PATH}')
+        else:
+            failures += 1
 
     message = f'''\nAll files in {config.TARGET_SQL_PATH} have been processed with
     {failures} failed validations.'''

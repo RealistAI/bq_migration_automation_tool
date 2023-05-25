@@ -27,10 +27,10 @@ def create_uc4_jobs_table(project_id,
         results = create_table_query.result()
 
         for row in results:
-            logger.info(f"{row.url} : {row.view_count}")
+            print(f"{row.url} : {row.view_count}")
 
     except Exception as error:
-        logger.info(error)
+        print(error)
 
 
 def sort_queries(project_id,
@@ -42,7 +42,7 @@ def sort_queries(project_id,
     project: The project being used to access the uc4_to_sql_map table.
     dataset: the dataset being used to access the uc4_to_sql_map table.
     """
-    uc4_jobs = {}
+    list_of_uc4_jobs = []
     distinct_job_query = f"SELECT DISTINCT job FROM {project_id}.{dataset_id}.uc4_to_sql_map ORDER BY job"
     try:
         distinct_job_query_results = gcp.submit_query(query=distinct_job_query,
@@ -51,23 +51,26 @@ def sort_queries(project_id,
         return error
 
     for row in distinct_job_query_results:
-        sql_data = list()
+        sql_data = {}
+        uc4_jobs = {}
         # Get all of the SQLs for that job
         job = row[0]
         sql_path_query = f"SELECT sql_path FROM {project_id}.{dataset_id}.uc4_to_sql_map WHERE job = '{job}' ORDER BY order_of_queries"
         sql_path_query_results = gcp.submit_query(query=sql_path_query,
                                                   dry_run="False")
 
+        order_of_queries = 0
         for row in sql_path_query_results:
             # Append that SQL to our temp SQL file
             sql_path = row[0]
-            logger.info(f"Path is: {sql_path}")
-            with open(sql_path, 'r') as sql_file:
-                sql = sql_file.read()
-                sql_data.append(sql)
-                logger.info(f"File data is : {sql_data}")
+            print(f"Path is: {sql_path}")
+            order_of_queries += 1
+            sql_data[order_of_queries] = sql_path
+            print(f"File data is : {sql_data}")
 
-        uc4_jobs[job] = '\n'.join(sql_data)
-    logger.info(f"uc4 jobs: {uc4_jobs}")
-    return uc4_jobs
+        uc4_jobs["uc4_job_name"] = job
+        uc4_jobs["steps"] = sql_data
+        list_of_uc4_jobs.append(uc4_jobs)
+    print(f"list of uc4 jobs: {list_of_uc4_jobs}")
+    return list_of_uc4_jobs
 

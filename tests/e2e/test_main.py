@@ -18,7 +18,6 @@ class TestE2e:
         time.sleep(5)
         assert is_repo_pushed(f'{config.BASE_PATH}/UC4_SQL/')
 
-
 def is_repo_pushed(repo_path):
     # Change to the repository directory
     repo_path = os.path.abspath(repo_path)
