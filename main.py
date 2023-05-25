@@ -1,6 +1,6 @@
 import os
 import config
-import utils.utils
+from utils import utils
 from utils import gcp
 from utils import git
 from pathlib import Path
@@ -36,12 +36,13 @@ def main():
     ''')
 
     # Iterate through BQMS output and validate transpiled SQL
-    uc4_jobs = s.sort_queries(config.PROJECT, config.DATASET)
-    uc4_jobs = uc4_jobs.items()
-    for job in uc4_jobs:
-        logger.info(f'Validating {job[1]} for uc4 job {job[0]}')
-        is_valid = gcp.validate_sql(sql_strings=job[1],
-                                    uc4_chain_name=)
+    for file_name in os.listdir(config.SQL_TO_VALIDATE):
+        if file_name not in files_to_ignore:
+            logger.info(f'Validating {file_name}')
+            sql_file_to_validate = f'{config.SQL_TO_VALIDATE}/{file_name}'
+            is_valid = gcp.validate_sql(sql_to_validate=sql_file_to_validate,
+                                              file_name=file_name)
+
 
         # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
         if is_valid is True:
@@ -54,13 +55,13 @@ def main():
     {failures} failed validations.'''
     logger.info(message)
 
-    repo_directory_name = setup.get_path_from_git_repo(repo_dir=config.UC4_SQL_REPO['path'])
+    repo_directory_name = git.get_path_from_git_repo(repo_dir=config.UC4_SQL_REPO['path'])
 
     logger.info(f'Pushing validated SQL to {repo_directory_name}')
     commit_message = f'Adding transpiled and validated GoogleSQL to the {repo_directory_name}'
 
-    branch_name = git_utils.push_to_git(remote_repo=config.UC4_SQL_REPO,
-                                        commit_message=commit_message)
+    branch_name = git.push_to_git(remote_repo=config.UC4_SQL_REPO,
+                                  commit_message=commit_message)
 
 if __name__ == "__main__":
     main()

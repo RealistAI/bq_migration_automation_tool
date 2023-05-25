@@ -52,9 +52,11 @@ def validate_sql(sql_to_validate,
 
     if isinstance(query_job, bigquery.QueryJob):
         tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=uc4_chain_name, status="SUCCEEDED", message="null", query="null", run_time=stripped_datetime)
+        
         return True
 
     elif isinstance(query_job, Exception):
         csv_file_path = f'{config.FAILURE_LOGS}/{stripped_datetime}.csv'
         tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=uc4_chain_name, status="FAILED", message=query_job, query="", run_time=stripped_datetime)
+       
         return False
