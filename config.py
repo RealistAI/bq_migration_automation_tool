@@ -8,9 +8,11 @@ DWH_MIGRATION_TOOL_REPO = {
         "branch": "main"
         }
 
+UC4_SQL_REPO_NAME = 'UC4_SQL'
+
 # Repo containing the SQLS to be translated.
 UC4_SQL_REPO = {
-        "path": "https://github.com/RealistAI/UC4_SQL.git",
+        "path": f"https://github.com/RealistAI/{UC4_SQL_REPO_NAME}.git",
         "branch": "master"
         }
 
@@ -23,7 +25,7 @@ PROJECT = "michael-gilbert-dev"
 PREPROCESED_BUCKET = "gs://dwh_preprocessed"
 
 # Directory housing the Github repository with the Teradata SQL to translate
-SOURCE_SQL_PATH = Path(BASE_PATH, 'UC4_SQL', 'teradata_sql')
+SOURCE_SQL_PATH = Path(BASE_PATH, UC4_SQL_REPO_NAME, 'teradata_sql')
 
 # GCS URI For the translated blobs
 TRANSLATED_BUCKET = "gs://dwh_translated"
@@ -32,7 +34,7 @@ TRANSLATED_BUCKET = "gs://dwh_translated"
 SQL_TO_VALIDATE = Path(os.getcwd(), 'transpiled_sql')
 
 # The directory in the origin Github repo for the validated Google SQL
-TARGET_SQL_PATH = Path(BASE_PATH, 'UC4_SQL', 'bigquery_sql')
+TARGET_SQL_PATH = Path(BASE_PATH, UC4_SQL_REPO_NAME, 'bigquery_sql')
 
 # Path to the DWH Migration tool required config.
 CONFIG = Path(os.getcwd(), 'config', 'config.yaml')
@@ -45,3 +47,5 @@ FAILURE_LOGS = Path(os.getcwd(), 'failure_logs')
 
 # Debug mode?
 DEBUG = True
+
+DATASET = "UC4_Jobs"
