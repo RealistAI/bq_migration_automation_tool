@@ -42,7 +42,7 @@ def sort_queries(project_id,
     project: The project being used to access the uc4_to_sql_map table.
     dataset: the dataset being used to access the uc4_to_sql_map table.
     """
-    uc4_jobs = list()
+    uc4_jobs = {}
     distinct_job_query = f"SELECT DISTINCT job FROM {project_id}.{dataset_id}.uc4_to_sql_map ORDER BY job"
     try:
         distinct_job_query_results = gcp.submit_query(query=distinct_job_query,
@@ -67,7 +67,7 @@ def sort_queries(project_id,
                 sql_data.append(sql)
                 logger.info(f"File data is : {sql_data}")
 
-        uc4_jobs.append(sql_data)
+        uc4_jobs[job] = '\n'.join(sql_data)
     logger.info(f"uc4 jobs: {uc4_jobs}")
     return uc4_jobs
 

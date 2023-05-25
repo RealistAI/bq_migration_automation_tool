@@ -30,7 +30,8 @@ def submit_query(query:str,
 
 
 def validate_sql(sql_to_validate,
-                 file_name) -> bool:
+                 file_name,
+                 uc4_chain_name) -> bool:
     """
     Validates the .sql files that are being brought in. If they are not valid sql, the file containing the invalid sql is renamed and appended to the 'failure_logs{stripped_datetime}.csv' file.
 
@@ -46,16 +47,14 @@ def validate_sql(sql_to_validate,
     query_job = submit_query(query=data,
                              dry_run=True)
 
+    current_datetime = str(datetime.datetime.now())
+    stripped_datetime = utils.remove_non_alphanumeric(string=current_datetime)
+
     if isinstance(query_job, bigquery.QueryJob):
-        maximum_billed_bytes = query_job.maximum_bytes_billed
+        tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=uc4_chain_name, status="SUCCEEDED", message="null", run_time=stripped_datetime)
         return True
 
     elif isinstance(query_job, Exception):
-        current_datetime = str(datetime.datetime.now())
-        data = {'file_name':file_name,'error_message':query_job,'time_stamp':current_datetime,
-                'error_type':type(query_job)}
-        stripped_datetime = utils.remove_non_alphanumeric(string=current_datetime)
         csv_file_path = f'{config.FAILURE_LOGS}/{stripped_datetime}.csv'
-        utils.create_failure_log(failure_log_file=csv_file_path,
-                                 data=data)
+        tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=uc4_chain_name, status="FAILED", message=query_job, run_time=stripped_datetime)
         return False

@@ -5,6 +5,19 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+class TestTranspilationLogs:
+    def test_create_log_table_successfully(self):
+        pass
+
+    def test_create_log_table_failed_due_to_invalid_project_id(self):
+        pass
+
+    def test_transpile_logs_into_table_successfully(self):
+        pass
+
+    def test_transpile_logs_into_table_failed_due_to_invalid_dataset_id(self):
+        pass
+
 def create_transpilation_log_table(project_id,
                                    dataset_id) -> None:
     """

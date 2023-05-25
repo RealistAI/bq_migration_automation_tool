@@ -48,16 +48,11 @@ def main():
             if is_valid is True:
                 os.system(f'cp {config.SQL_TO_VALIDATE}/{file_name} {config.TARGET_SQL_PATH}/')
                 logger.info(f'{file_name} validated and added to {config.TARGET_SQL_PATH}')
-                tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=, status="SUCCEEDED", message="null", run_time=)
             else:
-               failure_log_path = config.FAILURE_LOGS
-               failure_log = utils.get_latest_file(failure_log_path)
                failures += 1
-               tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=, status="FAILED", message=failure_logs, run_time=)
-
 
     message = f'''\nAll files in {config.TARGET_SQL_PATH} have been processed with
-    {failures} failed validations. For more details view {failure_log}\n'''
+    {failures} failed validations.'''
     logger.info(message)
 
     repo_directory_name = setup.get_path_from_git_repo(repo_dir=config.UC4_SQL_REPO['path'])
