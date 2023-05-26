@@ -36,20 +36,21 @@ def main():
     ''')
 
     # Iterate through BQMS output and validate transpiled SQL
-    for file_name in os.listdir(config.SQL_TO_VALIDATE):
-        if file_name not in files_to_ignore:
-            logger.info(f'Validating {file_name}')
-            sql_file_to_validate = f'{config.SQL_TO_VALIDATE}/{file_name}'
-            is_valid = gcp.validate_sql(sql_to_validate=sql_file_to_validate,
-                                              file_name=file_name)
+    list_of_uc4_jobs = s.sort_queries(config.PROJECT, config.DATASET)
+    for uc4_job in list_of_uc4_jobs:
+        steps = uc4_job['sql_paths']
+        job_name = uc4_job['uc4_job_name']
+        # This gives you the job name on one variable a way to order the queries and their paths
+        for i in range(1, len(steps) + 1):
+            path_to_query = steps[i]
+            # Then you have the path to the sql for each consecutive step
+            gcp.validate_sql(sql_to_validate=path_to_query, uc4_job_name=job_name)
 
-
-        # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
-        if is_valid is True:
-            os.system(f'cp {config.SQL_TO_VALIDATE}/{sql} {config.TARGET_SQL_PATH}/')
-            logger.info(f'{job} validated and added to {config.TARGET_SQL_PATH}')
-        else:
-            failures += 1
+            # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
+            if is_valid is True:
+                logger.info(f'{job} validated and added to {config.TARGET_SQL_PATH}')
+            else:
+                failures += 1
 
     message = f'''\nAll files in {config.TARGET_SQL_PATH} have been processed with
     {failures} failed validations.'''
