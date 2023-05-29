@@ -54,20 +54,29 @@ def sort_queries(project_id,
         return error
 
     for job in distinct_job_query_results:
-        sql_path_data = {}
-        uc4_jobs = {}
         # Get all of the SQLs for that job
         job = job[0]
         json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{job}'"
         json_data_query_results = gcp.submit_query(query=json_data_query,
                                                    dry_run="False")
-        for row in json_data_query_results:
-            dependency_dict = json.loads(json_data_query_results)
-            print(dependency_dict)
 
-        uc4_jobs["uc4_job_name"] = job
-        uc4_jobs["sql_paths"] = sql_path_data
-        #list_of_uc4_jobs.append(uc4_jobs)
+        for row in json_data_query_results:
+            json_data = row[0]
+            dependency_dict = json.loads(json_data)
+            print(f"dictionary is {dependency_dict}")
+            dependencies = dependency_dict['dependencies']
+            job_name = dependency_dict['job_name']
+            workflow = {}
+
+            for dependency in dependencies:
+                sql_path = dependency['sql_file_path']
+                step = dependency['order']
+                workflow[step] = sql_path
+
+            run_order = {'uc4_job_name': job_name, 'sql_path': workflow}
+
+            list_of_uc4_jobs.append(run_order)
     print(f"list of uc4 jobs: {list_of_uc4_jobs}")
     return list_of_uc4_jobs
+
 
