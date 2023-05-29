@@ -44,7 +44,7 @@ def main():
         for i in range(1, len(steps) + 1):
             path_to_query = steps[i]
             # Then you have the path to the sql for each consecutive step
-            gcp.validate_sql(sql_to_validate=path_to_query, uc4_job_name=job_name)
+            is_valid = gcp.validate_sql(sql_to_validate=path_to_query, uc4_job_name=job_name)
 
             # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
             if is_valid is True:

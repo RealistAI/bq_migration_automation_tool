@@ -4,6 +4,7 @@ import config
 from pathlib import Path
 import os
 import logging
+import json
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -52,32 +53,21 @@ def sort_queries(project_id,
     except Exception as error:
         return error
 
-    for row in distinct_job_query_results:
+    for job in distinct_job_query_results:
         sql_path_data = {}
         uc4_jobs = {}
         # Get all of the SQLs for that job
-        job = row[0]
-        sql_path_query = f"SELECT json_data.dependencies[0]['sql_file_path'] AS sql_file_path, json_data.dependencies[1]['sql_file_path'] AS sql_file_path2 FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{job}'"
-        sql_path_query_results = gcp.submit_query(query=sql_path_query,
-                                                  dry_run="False")
-
-        order_of_queries = 0
-        for row in sql_path_query_results:
-            # Append that SQL to our temp SQL file
-            sql_path = row[0]
-            second_sql_path = row[1]
-            print(f"Path is: {sql_path}")
-            print(f"second path is: {second_sql_path}")
-            order_of_queries += 1
-            sql_path_data[order_of_queries] = sql_path
-            order_of_queries += 1
-            sql_path_data[order_of_queries] = second_sql_path
-            print(f"File data is : {sql_path_data}")
-
+        job = job[0]
+        json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{job}'"
+        json_data_query_results = gcp.submit_query(query=json_data_query,
+                                                   dry_run="False")
+        for row in json_data_query_results:
+            dependency_dict = json.loads(json_data_query_results)
+            print(dependency_dict)
 
         uc4_jobs["uc4_job_name"] = job
         uc4_jobs["sql_paths"] = sql_path_data
-        list_of_uc4_jobs.append(uc4_jobs)
+        #list_of_uc4_jobs.append(uc4_jobs)
     print(f"list of uc4 jobs: {list_of_uc4_jobs}")
     return list_of_uc4_jobs
 

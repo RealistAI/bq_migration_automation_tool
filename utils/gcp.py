@@ -4,6 +4,7 @@ from google.cloud import bigquery
 from google.cloud import storage
 from utils import utils
 import os
+import transpilation_logs as tl
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -47,18 +48,19 @@ def validate_sql(sql_to_validate,
     query_job = submit_query(query=data,
                              dry_run=True)
 
+    for query in query_job:
+        query = query[0]
+        logger.info(query)
+
     current_datetime = str(datetime.datetime.now())
     stripped_datetime = utils.remove_non_alphanumeric(string=current_datetime)
 
     if isinstance(query_job, bigquery.QueryJob):
+        print("validation successful")
         tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=uc4_job_name, status="SUCCEEDED", message="null", query="null", run_time=stripped_datetime)
         return True
 
     elif isinstance(query_job, Exception):
-        for query in query_job:
-            query = query[1]
-            print(query)
-            return query
-        csv_file_path = f'{config.FAILURE_LOGS}/{stripped_datetime}.csv'
+        print("validation failed")
         tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=uc4_job_name, status="FAILED", message=query_job, query=query, run_time=stripped_datetime)
         return False

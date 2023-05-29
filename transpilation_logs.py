@@ -33,7 +33,7 @@ def create_transpilation_log_table(project_id,
     except Exception as error:
         print(error)
 
-create_transpilation_log_table(config.PROJECT, config.DATASET)
+#create_transpilation_log_table(config.PROJECT, config.DATASET)
 
 def transpile_logs_into_table(project_id,
                               dataset_id,
@@ -62,8 +62,8 @@ def transpile_logs_into_table(project_id,
                                             """)
 
         results = insert_changes_query.result()
-        print(results)
+        logger.info(f"{results} uploaded to transpilation_logs table")
         return results
 
     except Exception as error:
-        print(error)
+        logger.info(error)

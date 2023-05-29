@@ -61,17 +61,10 @@ def create_directories():
               cd SIMBA;
               mkdir AMPS;
               cd AMPS;
-              echo "SELECT * FROM master_table" > sql_1.sql;
-              echo "SELECT job_id FROM master_table" > sql_2.sql;
-              echo "SELECT current_year FROM master_table" > sql_3.sql;
-              echo "SELECT * FROM second_table" > sql_4.sql;
-              echo "SELECT sum_total FROM second_table" > sql_5.sql;
-              echo "SELECT * FROM third_table" > sql_6.sql;
-              echo "SELECT employee_id FROM fourth_table" > sql_7.sql;
-              echo "SELECT current_month FROM fourth_table" > sql_8.sql;
-              echo "SELECT * FROM final_table" > sql_9.sql;
-              echo "SELECT taxe_id FROM final_table" > sql_10.sql;
-              echo "SELECT orders FROM final_table" > sql_11.sql;
+              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > sql_1.sql;
+              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > sql_2.sql;
+              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > sql_3.sql;
+              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > sql_4.sql;
               """)
     yield
     os.system("rm -r output/")
