@@ -55,8 +55,6 @@ def create_directories():
     root = Path(os.getcwd())
     utils.create_path_if_not_exists(config.E2E_OUTPUT)
     os.system(f'echo "SELECT * FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/sql_1.sql;')
-    os.system(f'echo "SELECT * FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/sql_2.sql;')
-    os.system(f'echo "SELECT * FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/sql_3.sql;')
-    os.system(f'echo "SELECT * FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/sql_4.sql;')
+    os.system(f'echo "SELECT job_id FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/sql_2.sql;')
     yield
     os.system("rm -r output/")

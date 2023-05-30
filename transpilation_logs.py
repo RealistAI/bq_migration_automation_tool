@@ -58,7 +58,7 @@ def transpile_logs_into_table(project_id,
     try:
         insert_changes_query = client.query(f"""
                                             INSERT INTO {project_id}.{dataset_id}.transpilation_logs (job_id, status, message, query, run_time)
-                                            VALUES ('{job_id}', '{status}', '{message}', '{query}', '{run_time}')
+                                            VALUES ('{job_id}', '{status}', '''{message}''', '''{query}''', '{run_time}')
                                             """)
 
         results = insert_changes_query.result()
