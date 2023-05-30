@@ -67,13 +67,15 @@ def validate_sql(sql_to_validate,
     query_job = submit_query_for_validation(query=data,
                                             dry_run=True)
 
+    query_content = f"query content: SELECT * FROM `michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map` LIMIT 1000"
+
     current_datetime = str(datetime.datetime.now())
     if isinstance(query_job, bigquery.QueryJob):
         logger.info("validation successful")
-        tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=uc4_job_name, status="SUCCEEDED", message="null", query=data, run_time=current_datetime)
+        tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=uc4_job_name, status="SUCCEEDED", message="null", query=query_content, run_time=current_datetime)
         return True
 
     elif isinstance(query_job, Exception):
         logger.info("validation failed")
-        tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=uc4_job_name, status="FAILED", message=query_job, query=data, run_time=current_datetime)
+        tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id=config.DATASET, job_id=uc4_job_name, status="FAILED", message=query_job, query=query_content, run_time=current_datetime)
         return False
