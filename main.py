@@ -38,7 +38,7 @@ def main():
     # Iterate through BQMS output and validate transpiled SQL
     list_of_uc4_jobs = s.sort_queries(config.PROJECT, config.DATASET)
     for uc4_job in list_of_uc4_jobs:
-        steps = uc4_job['sql_paths']
+        steps = uc4_job['sql_path']
         job_name = uc4_job['uc4_job_name']
         # This gives you the job name on one variable a way to order the queries and their paths
         for i in range(1, len(steps) + 1):
@@ -48,7 +48,7 @@ def main():
 
             # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
             if is_valid is True:
-                logger.info(f'{job} validated and added to {config.TARGET_SQL_PATH}')
+                logger.info(f'{job_name} validated and added to {config.TARGET_SQL_PATH}')
             else:
                 failures += 1
 

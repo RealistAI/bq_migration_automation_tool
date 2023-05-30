@@ -3,6 +3,8 @@ import pytest
 import logging
 import time
 import os
+from pathlib import Path
+from utils import utils
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -50,21 +52,13 @@ def is_repo_pushed(repo_path):
 
 @pytest.fixture(scope="session")
 def create_directories():
-    os.system("""
-              mkdir output;
-              cd output;
-              mkdir bteq;
-              cd bteq;
-              mkdir BU;
-              cd BU;
-              mkdir SIMBA;
-              cd SIMBA;
-              mkdir AMPS;
-              cd AMPS;
-              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > sql_1.sql;
-              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > sql_2.sql;
-              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > sql_3.sql;
-              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > sql_4.sql;
+    root = Path(os.getcwd())
+    utils.create_path_if_not_exists(config.E2E_OUTPUT)
+    os.system(f"""
+              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > {config.E2E_OUTPUT}/sql_1.sql;
+              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > {config.E2E_OUTPUT}/sql_2.sql;
+              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > {config.E2E_OUTPUT}/sql_3.sql;
+              echo "SELECT * FROM michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map LIMIT 1000" > {config.E2E_OUTPUT}/sql_4.sql;
               """)
     yield
     os.system("rm -r output/")

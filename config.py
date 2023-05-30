@@ -49,3 +49,5 @@ FAILURE_LOGS = Path(os.getcwd(), 'failure_logs')
 DEBUG = True
 
 DATASET = "UC4_Jobs"
+
+E2E_OUTPUT = Path(os.getcwd(), "output", "bteq", "BU", "SIMBA", "AMPS")
