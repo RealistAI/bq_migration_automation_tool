@@ -35,7 +35,7 @@ def delete_table():
     yield
     try:
         delete_table = client.query(f"""
-                                    DROP TABLE {config.PROJECT}.{"merriks_dataset"}.transpilation_logs;
+                                    DROP TABLE {config.PROJECT}.merriks_dataset.transpilation_logs;
                                     """
                                     )
         results = delete_table.result()
