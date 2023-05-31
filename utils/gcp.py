@@ -51,7 +51,7 @@ def submit_query_for_validation(query:str,
 def validate_sql(sql_to_validate,
                  uc4_job_name) -> bool:
     """
-    Validates the .sql files that are being brought in. All logs, successful or not are uploaded to the transpilation_logs table in BigQuery.
+    Validates the .sql files that are being brought in. All logs, successful or not, are uploaded to the transpilation_logs table in BigQuery.
 
     Args:
     sql_to_validate: the path to the sql to validate.

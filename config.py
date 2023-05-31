@@ -44,9 +44,6 @@ CONFIG = Path(os.getcwd(), 'config', 'config.yaml')
 # Path to object name mapping config file
 MAPPING_CONFIG_FILE = Path(os.getcwd(), 'config', 'name_mapping.json')
 
-# Path to directory containing failure logs
-FAILURE_LOGS = Path(os.getcwd(), 'failure_logs')
-
 # Debug mode?
 DEBUG = True
 

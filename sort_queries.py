@@ -34,8 +34,6 @@ def create_uc4_jobs_table(project_id,
     except Exception as error:
         print(error)
 
-create_uc4_jobs_table(config.PROJECT, config.DATASET)
-
 def sort_queries(project_id,
                  dataset_id) -> None:
     """

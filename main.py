@@ -27,7 +27,7 @@ def main():
     ./prerun.sh;
     export BQMS_PROJECT={config.PROJECT};
     export BQMS_PREPROCESSED_PATH={config.PREPROCESED_BUCKET};
-    export BQMS_INPUT_PATH={config.SOURCE_SQL_PATH};
+    export BQMS_INPUT_PATH={config.E2E_OUTPUT};
     export BQMS_TRANSLATED_PATH={config.TRANSLATED_BUCKET};
     export BQMS_POSTPROCESSED_PATH={config.SQL_TO_VALIDATE};
     export BQMS_CONFIG_PATH={config.CONFIG};
@@ -43,12 +43,15 @@ def main():
         # This gives you the job name on one variable a way to order the queries and their paths
         for i in range(1, len(steps) + 1):
             path_to_query = steps[i]
+            file_name = path_to_query[26:]
             # Then you have the path to the sql for each consecutive step
             is_valid = gcp.validate_sql(sql_to_validate=path_to_query, uc4_job_name=job_name)
+            print(f"validity of the sql is {is_valid}")
 
             # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
             if is_valid is True:
                 logger.info(f'{job_name} validated and added to {config.TARGET_SQL_PATH}')
+                os.system(f'cp {config.E2E_OUTPUT}/{file_name} {config.TARGET_SQL_PATH}/')
             else:
                 failures += 1
 
