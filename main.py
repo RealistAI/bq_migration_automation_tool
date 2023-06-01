@@ -27,7 +27,7 @@ def main():
     ./prerun.sh;
     export BQMS_PROJECT={config.PROJECT};
     export BQMS_PREPROCESSED_PATH={config.PREPROCESED_BUCKET};
-    export BQMS_INPUT_PATH={config.E2E_OUTPUT};
+    export BQMS_INPUT_PATH={config.SOURCE_SQL_PATH};
     export BQMS_TRANSLATED_PATH={config.TRANSLATED_BUCKET};
     export BQMS_POSTPROCESSED_PATH={config.SQL_TO_VALIDATE};
     export BQMS_CONFIG_PATH={config.CONFIG};
@@ -51,7 +51,7 @@ def main():
             # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
             if is_valid is True:
                 logger.info(f'{job_name} validated and added to {config.TARGET_SQL_PATH}')
-                os.system(f'cp {config.E2E_OUTPUT}/{file_name} {config.TARGET_SQL_PATH}/')
+                os.system(f'cp {config.SQL_TO_VALIDATE}/{file_name} {config.TARGET_SQL_PATH}/')
             else:
                 failures += 1
 
