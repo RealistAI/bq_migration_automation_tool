@@ -34,6 +34,8 @@ def create_uc4_jobs_table(project_id,
     except Exception as error:
         print(error)
 
+create_uc4_jobs_table(config.PROJECT, config.DATASET)
+
 def sort_queries(project_id,
                  dataset_id) -> None:
     """
@@ -44,6 +46,7 @@ def sort_queries(project_id,
     dataset: the dataset being used to access the uc4_to_sql_map table.
     """
     list_of_uc4_jobs = []
+    #csv_of_job_names = read(uc4_jobs.csv)
     distinct_job_query = f"SELECT DISTINCT job_id FROM {project_id}.{dataset_id}.uc4_json ORDER BY job_id"
     try:
         distinct_job_query_results = gcp.submit_query(query=distinct_job_query,
@@ -52,6 +55,7 @@ def sort_queries(project_id,
         return error
 
     for job in distinct_job_query_results:
+    #for job in csv_of_job_names:
         # Get all of the SQLs for that job
         job = job[0]
         json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{job}'"
@@ -62,12 +66,11 @@ def sort_queries(project_id,
             json_data = row[0]
             dependency_dict = json.loads(json_data)
             print(f"dictionary is {dependency_dict}")
-            dependencies = dependency_dict['dependencies']
+            sql_dependencies = dependency_dict['sql_dependencies']
             job_name = dependency_dict['job_name']
             workflow = {}
-
-            for dependency in dependencies:
-                sql_path = dependency['sql_file_path']
+            sql_path = extract_sql_dependencies(sql_dependencies)
+            for dependency in sql_dependencies:
                 step = dependency['order']
                 workflow[step] = sql_path
 
@@ -77,4 +80,11 @@ def sort_queries(project_id,
     print(f"list of uc4 jobs: {list_of_uc4_jobs}")
     return list_of_uc4_jobs
 
-
+def extract_sql_dependencies(sql_dependencies):
+    sql_paths = []
+    for i in sql_dependencies:
+       if i.get('sql_dependencies'):
+           sql_paths.extend(extract_sql_dependencies(i))
+       else:
+           sql_paths.append(i['sql_file_path'])
+    return sql_paths
