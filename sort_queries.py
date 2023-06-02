@@ -47,19 +47,12 @@ def sort_queries(project_id,
     """
     list_of_uc4_jobs = []
     csv_of_job_names = open("uc4_jobs.csv", "r").readlines()
-    #distinct_job_query = f"SELECT DISTINCT job_id FROM {project_id}.{dataset_id}.uc4_json ORDER BY job_id"
-    #try:
-    #    distinct_job_query_results = gcp.submit_query(query=distinct_job_query,
-    #                                                  dry_run="False")
-    #except Exception as error:
-    #    return error
-
-    #for job in distinct_job_query_results:
     number_of_jobs = 0
+
     for job in csv_of_job_names:
+        # Get the JSON for that job after parsing through job names
         job = job.replace("\"", "").split(",")
         job = job[number_of_jobs]
-        # Get all of the SQLs for that job
         json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{job}'"
         json_data_query_results = gcp.submit_query(query=json_data_query,
                                                    dry_run="False")
