@@ -1,5 +1,5 @@
 from google.cloud import bigquery
-from utils import gcp, utils
+from utils import gcp
 import config
 from pathlib import Path
 import os

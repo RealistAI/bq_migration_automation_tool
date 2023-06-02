@@ -9,141 +9,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-
-def format_failure_log_data(data: dict) -> list:
-    ''' Create a failure log from a given dictionary
-
-    Verifies the dictionary contains the required keys, adds them to a list, and return it.
-
-    Args:
-    data: A dict containing a the keys file_name, error_type, error message and timestamp.
-          {'file_name':'path',
-          'error_type':Exception,
-          'error_message':'An error message',
-          'timestamp':2023-05-12 15:47:25.067662}
-    '''
-    failure_log = []
-    if isinstance(data, dict):
-        logger.info(f'Creating failure log from provided data')
-        try:
-            failure_log = [data['file_name'],
-                           data['error_type'],
-                           data['error_message'],
-                           data['timestamp']]
-            logger.info(failure_log)
-            return failure_log
-        except KeyError as error:
-            logger.error(f'"data" did not have the required keys to create failure log')
-            return
-    else:
-        logger.error(f'Unable to construct failure log with given data: {data}')
-        return
-
-def create_failure_log(failure_log_path:Path,
-                       data:dict):
-    ''' Writes failure logs to a csv file in the directory specified
-
-    Takes the provided dictionary, validates that it has the required data for a failure log,
-    formats the failure log list as required, and writes the results and the proper headers
-    to a file in the given location.
-
-    Args:
-    failure_log_file: Path to file for failure log
-    data: A dict containing a the keys file_name, error_type, error message and timestamp.
-          {'file_name':'path',
-          'error_type':Exception,
-          'error_message':'An error message',
-          'timestamp':2023-05-12 15:47:25.067662}
-    '''
-    failure_log = format_failure_log_data(data)
-    header = ['file_name','error_type','error_message','time_stamp']
-
-    write_data_to_csv_file(file_path=failure_log_path,
-                           header=header,
-                           row=failure_log)
-
-def write_data_to_csv_file(file_path:Path,
-                           row:list,
-                           header:list):
-    ''' Takes a list of values and adds them to a csv file with the given header.
-
-    The list should contain a nested list for each row, if only a single list is given,
-    it is written to a single row in the csv file.
-
-    Args:
-    file_name: The name of a existing csv file to write the data to.
-    rows: A list of elements representing a row to append to the given csv file.
-          IE ['elementA','element1','elementB']
-    '''
-    file_path_string = str(file_path)
-    with open (file_path_string, 'w', newline='') as csvfile:
-        try:
-            writer = csv.writer(csvfile)
-            writer.writerow(header)
-            writer.writerow(row)
-        except Exception as error:
-            message = f'Failed to create failure log for run.\n{error}'
-            logger.error(message)
-
-def copy_file(path_of_file_to_copy,
-              path_to_target):
-    """ Copy a file from a given location to a given location
-
-    Args:
-    path_of_file_to_copy: The path to the file you want to copy
-    path_to_target: Path to the directory you want to copy the file into
-    """
-    logger.info(f"Coping {path_of_file_to_copy} to {path_to_target}")
-    try:
-        with open (path_of_file_to_copy, 'r') as origin_file:
-            data = origin_file.read()
-    except Exception as error:
-        logger.info(f'Unable to open {path_of_file_to_copy}')
-
-    try:
-        with open (path_to_target, 'w') as target_file:
-            target_file.write(data)
-    except Exception as error:
-        logger.info(f'''Failed to write the data extracted from 
-                    {path_of_file_to_copy} to {path_to_target}''')
-
-def remove_non_alphanumeric(string):
-    ''' Removes all characters that are not numbers or letters
-
-    Args:
-    string: The string you wish to remove non alphanumeric characters from.
-    '''
-    alphanumeric_chars = []
-    for char in string:
-        if char.isalnum():
-            alphanumeric_chars.append(char)
-    return ''.join(alphanumeric_chars)
-
-def get_latest_file(directory):
-    ''' Returns the file in the given directory with the highest datetime
-
-    Args:
-    directory: Directory to evaluate.
-    '''
-    files = os.listdir(directory)
-    max_file = None
-    max_number = -1
-
-    for file in files:
-        if file.endswith('.csv'):
-            try:
-                number = int(os.path.splitext(file)[0])
-                if number > max_number:
-                    max_number = number
-                    max_file = file
-            except ValueError:
-                pass
-
-    if max_file is not None:
-        return os.path.join(directory, max_file)
-    else:
-        return None
-
 def create_path_if_not_exists(path) -> None:
     """
     Create the file path if it does not exist
@@ -153,6 +18,91 @@ def create_path_if_not_exists(path) -> None:
     """
     if not os.path.exists(path):
         os.makedirs(path)
+`
+def get_uc4_json(project_id: str, dataset: str, uc4_job_name: str) -> dict:
+
+    # get the json for this uc4 job from BigQuery
+    json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{uc4_job_name}'"
+    json_data_query_results = gcp.submit_query(query=json_data_query,
+                                                   dry_run="False")
+
+    # Convert the JSON to a Dict
+    for row in json_data_query_results:
+        json_data = row[0]
+        dependency_dict = json.loads(json_data)
+        sql_dependencies = dependency_dict['sql_dependencies']
+        workflow = {}
+        number = 1
+        for items in sql_path:
+            workflow[number] = items
+            number += 1
+
+        run_order = {'uc4_job_name': job, 'sql_path': workflow}
+
+        list_of_uc4_jobs.append(run_order)
+
+    # Return it
+    print(f"list of uc4 jobs: {list_of_uc4_jobs}")
+    return list_of_uc4_jobs
+
+
+def get_sql_dependencies(uc4_job: dict, repo_path: Path) -> List[str]:
+    """
+    Parse the uc4_job Dict to get the SQL dependencies
+    Find those SQL files in the repo_path
+    Read those files and append them to a list
+    """
+
+    sql = []
+    # Extract the SQL Dependencies from the uc4_job dict
+
+    # Iterate through them, read the file, and append that to a list
+
+    for i in sql_dependencies:
+        with open(Path(repo_path, i), 'r') as sql_file:
+            sql.append(sql_file.read())
+
+    return sql
+
+list_of_uc4_jobs = []
+    csv_of_job_names = open("uc4_jobs.csv", "r").readlines()
+    number_of_jobs = 0
+
+    for job in csv_of_job_names:
+        # Get the JSON for that job after parsing through job names
+        job = job.replace("\"", "").split(",")
+        job = job[number_of_jobs]
+        json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{job}'"
+        json_data_query_results = gcp.submit_query(query=json_data_query,
+                                                   dry_run="False")
+        number_of_jobs += 1
+
+        for row in json_data_query_results:
+            json_data = row[0]
+            dependency_dict = json.loads(json_data)
+            sql_dependencies = dependency_dict['sql_dependencies']
+            workflow = {}
+            sql_path = extract_sql_dependencies(sql_dependencies)
+            number = 1
+            for items in sql_path:
+                workflow[number] = items
+                number += 1
+
+            run_order = {'uc4_job_name': job, 'sql_path': workflow}
+
+            list_of_uc4_jobs.append(run_order)
+    print(f"list of uc4 jobs: {list_of_uc4_jobs}")
+    return list_of_uc4_jobs
+
+def extract_sql_dependencies(sql_dependencies):
+    sql_paths = []
+    for dependencies in sql_dependencies:
+        if dependencies.get('sql_dependencies'):
+            sql_paths.extend(extract_sql_dependencies(dependencies['sql_dependencies']))
+        else:
+            sql_file_path = dependencies.get("sql_file_path")
+            sql_paths.append(sql_file_path)
+    return sql_paths
 
 
 

@@ -2,7 +2,6 @@ import datetime
 import config
 from google.cloud import bigquery
 from google.cloud import storage
-from utils import utils
 import os
 import transpilation_logs as tl
 
