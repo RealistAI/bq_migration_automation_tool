@@ -59,10 +59,8 @@ def sort_queries(project_id,
     for job in csv_of_job_names:
         job = job.replace("\"", "").split(",")
         job = job[number_of_jobs]
-        print("job is ", job)
         # Get all of the SQLs for that job
         json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{job}'"
-        print(json_data_query)
         json_data_query_results = gcp.submit_query(query=json_data_query,
                                                    dry_run="False")
         number_of_jobs += 1
@@ -70,7 +68,6 @@ def sort_queries(project_id,
         for row in json_data_query_results:
             json_data = row[0]
             dependency_dict = json.loads(json_data)
-            print(f"dictionary is {dependency_dict}\n")
             sql_dependencies = dependency_dict['sql_dependencies']
             workflow = {}
             sql_path = extract_sql_dependencies(sql_dependencies)
@@ -87,12 +84,10 @@ def sort_queries(project_id,
 
 def extract_sql_dependencies(sql_dependencies):
     sql_paths = []
-    for dependency in sql_dependencies:
-        print("Dependency is ", dependency)
-        print("\n")
-        if dependency.get('sql_dependencies'):
-            sql_paths.extend(extract_sql_dependencies(dependency['sql_dependencies']))
+    for dependencies in sql_dependencies:
+        if dependencies.get('sql_dependencies'):
+            sql_paths.extend(extract_sql_dependencies(dependencies['sql_dependencies']))
         else:
-            sql_file_path = dependency.get("sql_file_path")
+            sql_file_path = dependencies.get("sql_file_path")
             sql_paths.append(sql_file_path)
     return sql_paths
