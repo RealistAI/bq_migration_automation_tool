@@ -2,6 +2,7 @@ from utils import utils, gcp
 from google.cloud import bigquery
 import config
 import json
+import re
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -13,24 +14,6 @@ business_unit_map = {
     "C": "dataset_c",
     "D": "dataset_d"
 }
-def create_data_mapping_table(project_id, dataset_id):
-    client= bigquery.Client()
-
-    try:
-        create_query = client.query(f"""
-                                    CREATE TABLE IF NOT EXISTS {config.PROJECT}.{config.DATASET}.dataset_mapping(
-                                    table_mapping STRING
-                                    """);
-
-        results  = create_query.result()
-        logger.info(f"{results} uploaded to dataset_mapping table")
-        return results
-
-    except Exception as error:
-        logger.info(error)
-
-#create_data_mapping_table(config.PROJECT, config.DATASET)
-
 
 def generate_table_mapping(project_id:str,
                            dataset_id: str,
@@ -53,30 +36,34 @@ def generate_table_mapping(project_id:str,
 
     # Find the interem tables
     sqls = utils.get_sql_dependencies(uc4_job=uc4_job,
-                                      repo_path=config.UC4_SQL_REPO)
+                                      repo_path=config.E2E_OUTPUT)
 
     table_mapping = {}
     # Identify if the SQLs are DML or DDL
     for sql in sqls:
-       match = re.search(sql)
+        match = re.search("^.", sql)
 
-       if match is not None:
-           # Tables will look like dataset.table. We can split by period to get the dataset
-           split_match = match.split('.')
+        if match is not None:
+            # Tables will look like dataset.table. We can split by period to get the dataset
+            split_match = str(match.string).split('.')
+            print("split match is", split_match)
+            table_mapping[split_match[1]] = f"{dataset}"
+            print("table mapping is", table_mapping)
 
-           table_mapping[match] = f"{dataset}.{split_match[1]}"
+    table_mapping = str(table_mapping)
 
     # Write the table mappings to BigQuery
     client= bigquery.Client()
 
     try:
         insert_query = client.query(f"""
-                                    INSERT INTO {config.PROJECT}.{config.DATASET}.dataset_mapping (table_mapping)
-                                    VALUES('{table_mapping}')
+                                    INSERT INTO {config.PROJECT}.{dataset}.dataset_mapping (table_mapping)
+                                    VALUES('''{table_mapping}''')
                                     """)
         results  = insert_query.result()
-        logger.info(f"{results} uploaded to dataset_mapping table")
-        return results
+        print(f"{results} uploaded to dataset_mapping table")
 
     except Exception as error:
-        logger.info(error)
+        print(error)
+
+    return table_mapping

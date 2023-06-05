@@ -73,6 +73,7 @@ def sort_queries(project_id,
             list_of_uc4_jobs.append(run_order)
 
     logger.info(f"list of uc4 jobs: {list_of_uc4_jobs}")
+    print(f"list of uc4 jobs: {list_of_uc4_jobs}")
     return list_of_uc4_jobs
 
 def extract_sql_dependencies(sql_dependencies):

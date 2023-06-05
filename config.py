@@ -10,13 +10,15 @@ DWH_MIGRATION_TOOL_REPO = {
 
 UC4_SQL_REPO_NAME = 'UC4_SQL'
 
+TEST_DATASET_MAPPING_PATH = "~/git/UC4_SQL"
+
 # Repo containing the SQLS to be translated.
 UC4_SQL_REPO = {
         "path": f"https://github.com/RealistAI/{UC4_SQL_REPO_NAME}.git",
         "branch": "master"
         }
 
-BASE_PATH = Path(Path.home(), 'required_repos')
+BASE_PATH = Path(Path.home(), 'required_repos', UC4_SQL_REPO_NAME)
 
 # GCP Project that should perform the translations
 PROJECT = "michael-gilbert-dev"
@@ -30,7 +32,7 @@ SOURCE_SQL_PATH = Path(BASE_PATH, UC4_SQL_REPO_NAME, 'teradata_sql')
 # GCS URI For the translated blobs
 TRANSLATED_BUCKET = "gs://dwh_translated"
 
-E2E_OUTPUT = Path(os.getcwd(), "output", "bteq", "BU", "SIMBA", "AMPS")
+E2E_OUTPUT = Path(BASE_PATH, "output", "bteq", "BU", "SIMBA", "AMPS")
 
 # Path to local directory containing the transpiled SQL
 SQL_TO_VALIDATE = Path(os.getcwd(), "transpiled_sql")

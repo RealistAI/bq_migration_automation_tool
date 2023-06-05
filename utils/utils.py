@@ -59,22 +59,33 @@ def get_sql_dependencies(uc4_job: dict,
     repo_path: the path to the repo that contains the sql_files.
     """
 
-    sql = []
+    sqls = []
     # Extract the SQL Dependencies from the uc4_job Dict
     sql_dependencies = uc4_job['sql_dependencies']
-    workflow = {}
     sql_path = extract_sql_dependencies(sql_dependencies)
 
     # Iterate through them, read the file, and append that to a list
-    number = 1
-    for items in sql_path:
-        workflow[number] = items
-        with open(Path(repo_path, items), 'r') as sql_file:
-            sql.append(sql_file.read())
-        number += 1
+    for file_path in sql_path:
+        print("file_path is ", file_path)
+        print("\n")
+        if len(file_path) == 0:
+            sqls.append(file_path)
+        else:
+            file_directory = file_path.split("/")
+            file_directory = file_directory[-2]
+            print("file_directory is ", file_directory)
+            print("\n")
+            repo_path = str(repo_path) + "/" + file_directory
+            print("new repo path is", repo_path)
+            print("\n")
+            file_name =  os.path.basename(file_path)
+            create_path_if_not_exists(repo_path)
+            with open(Path(repo_path, file_name), 'r') as sql_file:
+                sqls.append(sql_file.read())
+            repo_path = config.E2E_OUTPUT
 
-    run_order = {'uc4_job_name': job, 'sql_path': workflow}
-    return sql
+    print("list of sql dependencies is ", sqls)
+    return sqls
 
 def extract_sql_dependencies(sql_dependencies: list):
     """
