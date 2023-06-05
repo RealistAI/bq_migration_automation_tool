@@ -34,6 +34,8 @@ def create_uc4_jobs_table(project_id,
     except Exception as error:
         print(error)
 
+create_uc4_jobs_table(config.PROJECT, config.DATASET)
+
 def sort_queries(project_id,
                  dataset_id) -> None:
     """
@@ -44,37 +46,41 @@ def sort_queries(project_id,
     dataset: the dataset being used to access the uc4_to_sql_map table.
     """
     list_of_uc4_jobs = []
-    distinct_job_query = f"SELECT DISTINCT job_id FROM {project_id}.{dataset_id}.uc4_json ORDER BY job_id"
-    try:
-        distinct_job_query_results = gcp.submit_query(query=distinct_job_query,
-                                                      dry_run="False")
-    except Exception as error:
-        return error
+    csv_of_job_names = open("uc4_jobs.csv", "r").readlines()
+    number_of_jobs = 0
 
-    for job in distinct_job_query_results:
-        # Get all of the SQLs for that job
-        job = job[0]
+    for job in csv_of_job_names:
+        # Get the JSON for that job after parsing through job names
+        job = job.replace("\"", "").split(",")
+        job = job[number_of_jobs]
         json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{job}'"
         json_data_query_results = gcp.submit_query(query=json_data_query,
                                                    dry_run="False")
+        number_of_jobs += 1
 
         for row in json_data_query_results:
             json_data = row[0]
             dependency_dict = json.loads(json_data)
-            print(f"dictionary is {dependency_dict}")
-            dependencies = dependency_dict['dependencies']
-            job_name = dependency_dict['job_name']
+            sql_dependencies = dependency_dict['sql_dependencies']
             workflow = {}
+            sql_path = extract_sql_dependencies(sql_dependencies)
+            number = 1
+            for items in sql_path:
+                workflow[number] = items
+                number += 1
 
-            for dependency in dependencies:
-                sql_path = dependency['sql_file_path']
-                step = dependency['order']
-                workflow[step] = sql_path
-
-            run_order = {'uc4_job_name': job_name, 'sql_path': workflow}
+            run_order = {'uc4_job_name': job, 'sql_path': workflow}
 
             list_of_uc4_jobs.append(run_order)
     print(f"list of uc4 jobs: {list_of_uc4_jobs}")
     return list_of_uc4_jobs
 
-
+def extract_sql_dependencies(sql_dependencies):
+    sql_paths = []
+    for dependencies in sql_dependencies:
+        if dependencies.get('sql_dependencies'):
+            sql_paths.extend(extract_sql_dependencies(dependencies['sql_dependencies']))
+        else:
+            sql_file_path = dependencies.get("sql_file_path")
+            sql_paths.append(sql_file_path)
+    return sql_paths
