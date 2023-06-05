@@ -6,6 +6,9 @@ import yaml
 import csv
 import os
 import logging
+import json
+from utils import gcp
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -18,8 +21,18 @@ def create_path_if_not_exists(path) -> None:
     """
     if not os.path.exists(path):
         os.makedirs(path)
-`
-def get_uc4_json(project_id: str, dataset: str, uc4_job_name: str) -> dict:
+
+def get_uc4_json(project_id: str,
+                 dataset_id: str,
+                 uc4_job_name: str) -> dict:
+    """
+    Runs a query to attain the json data located in the uc4_json table for a specific uc4_job.
+
+    Args:
+    project_id: the project_id used in conjunction with the dataset_id to access the table.
+    dataset_id: the dataset_id used in conjunction with the project_id to access the table.
+    uc4_job_name: the name of the uc4_job we want the json data from.
+    """
 
     # get the json for this uc4 job from BigQuery
     json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{uc4_job_name}'"
@@ -30,71 +43,46 @@ def get_uc4_json(project_id: str, dataset: str, uc4_job_name: str) -> dict:
     for row in json_data_query_results:
         json_data = row[0]
         dependency_dict = json.loads(json_data)
-        sql_dependencies = dependency_dict['sql_dependencies']
-        workflow = {}
-        number = 1
-        for items in sql_path:
-            workflow[number] = items
-            number += 1
 
-        run_order = {'uc4_job_name': job, 'sql_path': workflow}
+        # Return it 
+        return dependency_dict
 
-        list_of_uc4_jobs.append(run_order)
-
-    # Return it
-    print(f"list of uc4 jobs: {list_of_uc4_jobs}")
-    return list_of_uc4_jobs
-
-
-def get_sql_dependencies(uc4_job: dict, repo_path: Path) -> List[str]:
+def get_sql_dependencies(uc4_job: dict,
+                         repo_path: Path) -> list():
     """
     Parse the uc4_job Dict to get the SQL dependencies
     Find those SQL files in the repo_path
     Read those files and append them to a list
+
+    Args:
+    uc4_job: the dictionary containing the paths to the sql_files.
+    repo_path: the path to the repo that contains the sql_files.
     """
 
     sql = []
-    # Extract the SQL Dependencies from the uc4_job dict
+    # Extract the SQL Dependencies from the uc4_job Dict
+    sql_dependencies = uc4_job['sql_dependencies']
+    workflow = {}
+    sql_path = extract_sql_dependencies(sql_dependencies)
 
     # Iterate through them, read the file, and append that to a list
-
-    for i in sql_dependencies:
-        with open(Path(repo_path, i), 'r') as sql_file:
+    number = 1
+    for items in sql_path:
+        workflow[number] = items
+        with open(Path(repo_path, items), 'r') as sql_file:
             sql.append(sql_file.read())
+        number += 1
 
+    run_order = {'uc4_job_name': job, 'sql_path': workflow}
     return sql
 
-list_of_uc4_jobs = []
-    csv_of_job_names = open("uc4_jobs.csv", "r").readlines()
-    number_of_jobs = 0
+def extract_sql_dependencies(sql_dependencies: list):
+    """
+    extracts all the sql_dependencies/sql_file_paths from within json data from bigquery.(a list with nested dictionarys)
 
-    for job in csv_of_job_names:
-        # Get the JSON for that job after parsing through job names
-        job = job.replace("\"", "").split(",")
-        job = job[number_of_jobs]
-        json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{job}'"
-        json_data_query_results = gcp.submit_query(query=json_data_query,
-                                                   dry_run="False")
-        number_of_jobs += 1
-
-        for row in json_data_query_results:
-            json_data = row[0]
-            dependency_dict = json.loads(json_data)
-            sql_dependencies = dependency_dict['sql_dependencies']
-            workflow = {}
-            sql_path = extract_sql_dependencies(sql_dependencies)
-            number = 1
-            for items in sql_path:
-                workflow[number] = items
-                number += 1
-
-            run_order = {'uc4_job_name': job, 'sql_path': workflow}
-
-            list_of_uc4_jobs.append(run_order)
-    print(f"list of uc4 jobs: {list_of_uc4_jobs}")
-    return list_of_uc4_jobs
-
-def extract_sql_dependencies(sql_dependencies):
+    Args:
+    sql_dependencies: The list containing the nested dictionaries which contain all the sql_dependencies such as the sql_file_paths needed for transpilation and validation.
+    """
     sql_paths = []
     for dependencies in sql_dependencies:
         if dependencies.get('sql_dependencies'):

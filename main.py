@@ -46,7 +46,7 @@ def main():
             file_name = path_to_query[26:]
             # Then you have the path to the sql for each consecutive step
             is_valid = gcp.validate_sql(sql_to_validate=path_to_query, uc4_job_name=job_name)
-            print(f"validity of the sql is {is_valid}")
+            logger.info(f"validity of the sql is {is_valid}")
 
             # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
             if is_valid is True:

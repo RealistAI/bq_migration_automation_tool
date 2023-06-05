@@ -60,7 +60,7 @@ def validate_sql(sql_to_validate,
     logger.info(f'Validating {sql_to_validate}')
     with open (sql_to_validate, 'r') as file:
         data = file.read()
-    print("data is ", type(data), data)
+    logger.info("data is ", type(data), data)
 
     logger.debug(f'Submitting {sql_to_validate} for dry-run')
     query_job = submit_query_for_validation(query=data,

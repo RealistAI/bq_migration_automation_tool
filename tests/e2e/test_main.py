@@ -5,7 +5,6 @@ import time
 import os
 from pathlib import Path
 from utils import utils, gcp
-from main import main
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

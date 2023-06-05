@@ -29,17 +29,17 @@ def create_uc4_jobs_table(project_id,
         results = create_uc4_table.result()
 
         for row in results:
-            print(f"{row.url} : {row.view_count}")
+            logger.info(f"{row.url} : {row.view_count}")
 
     except Exception as error:
-        print(error)
+        logger.info(error)
 
-create_uc4_jobs_table(config.PROJECT, config.DATASET)
+#create_uc4_jobs_table(config.PROJECT, config.DATASET)
 
 def sort_queries(project_id,
                  dataset_id) -> None:
     """
-    Runs a query to extract the DISTINCT Jobs from BQ and then another query to attain the specific SQLs from those DISTINCT jobs. Then the specific SQLs of the same job will be added to the same `.sql` file to be validated by `main.py`.
+    Loads a CSV file full of the uc4_jobs, then runs a query to attain the specific JSON from those jobs. Thn all the jobs will be added to a list of dictionaries, where each job and its sqls will be added to its own dictionary to be validated by `main.py`.
 
     Args:
     project: the project being used to access the uc4_to_sql_map table.
@@ -70,9 +70,9 @@ def sort_queries(project_id,
                 number += 1
 
             run_order = {'uc4_job_name': job, 'sql_path': workflow}
-
             list_of_uc4_jobs.append(run_order)
-    print(f"list of uc4 jobs: {list_of_uc4_jobs}")
+
+    logger.info(f"list of uc4 jobs: {list_of_uc4_jobs}")
     return list_of_uc4_jobs
 
 def extract_sql_dependencies(sql_dependencies):

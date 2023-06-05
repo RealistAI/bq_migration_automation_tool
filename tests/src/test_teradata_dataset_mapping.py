@@ -1,0 +1,16 @@
+from utils import utils
+from google.cloud import bigquery
+from google.api_core.exceptions import NotFound, Forbidden, BadRequest, ServiceUnavailable, Conflict, TooManyRequests
+import teradata_to_bq_dataset_mapping as tdm
+import config
+import pytest
+
+class TestDatasetMapping:
+    def test_generate_table_mapping_success(self):
+        dataset_mapping = tdm.generate_table_mapping(project_id=config.PROJECT, dataset_id=config.DATASET, uc4_job_name="UC4_JOB_1", business_unit="A")
+        assert type(dataset_mapping) == type(dict())
+
+    def test_generate_table_mapping_fail_due_to_invalid_job(self):
+        with pytest.raises(TypeError):
+            dataset_mapping = tdm.generate_table_mapping(project_id=config.PROJECT, dataset_id=config.DATASET, uc4_job_name="UC4_JOB_7.5", business_unit="A")
+
