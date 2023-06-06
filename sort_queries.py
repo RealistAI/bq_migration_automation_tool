@@ -19,26 +19,27 @@ def sort_queries(project_id,
     dataset: the dataset being used to access the uc4_to_sql_map table.
     """
     list_of_uc4_jobs = []
-    csv_of_job_names = open("uc4_jobs.csv", "r").readlines()
-    number_of_jobs = 0
 
-    for job in csv_of_job_names:
-        # Get the JSON for that job after parsing through job names
-        job = job.replace("\"", "").split(",")
-        job = job[number_of_jobs]
-        dependency_dict = utils.get_uc4_json(project_id=project_id, dataset_id=dataset_id, uc4_job_name=job)
-        number_of_jobs += 1
+    with open("uc4_jobs.csv", "r") as csv_of_job_names:
+        header = csv_of_job_names.readline()
+        for jobs in csv_of_job_names:
+            # Get the JSON for that job after parsing through job namesjob
+            job = jobs.split(",")
+            job = job[1]
+            print("job is", job, type(job))
+            dependency_dict = utils.get_uc4_json(project_id=project_id, dataset_id=dataset_id, uc4_job_name=job)
+            print("dependency dict is", dependency_dict, type(dependency_dict))
 
-        sql_dependencies = dependency_dict['sql_dependencies']
-        workflow = {}
-        sql_path = utils.extract_sql_dependencies(sql_dependencies)
-        number = 1
-        for items in sql_path:
-            workflow[number] = items
-            number += 1
+            sql_dependencies = dependency_dict['sql_dependencies']
+            workflow = {}
+            sql_path = utils.extract_sql_dependencies(sql_dependencies)
+            number = 1
+            for items in sql_path:
+                workflow[number] = items
+                number += 1
 
-        run_order = {'uc4_job_name': job, 'sql_path': workflow}
-        list_of_uc4_jobs.append(run_order)
+            run_order = {'uc4_job_name': job, 'sql_path': workflow}
+            list_of_uc4_jobs.append(run_order)
 
     logger.info(f"list of uc4 jobs: {list_of_uc4_jobs}")
     print(f"list of uc4 jobs: {list_of_uc4_jobs}")

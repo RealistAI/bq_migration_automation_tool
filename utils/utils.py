@@ -35,7 +35,7 @@ def get_uc4_json(project_id: str,
     """
 
     # get the json for this uc4 job from BigQuery
-    json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{uc4_job_name}'"
+    json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = {uc4_job_name}"
     json_data_query_results = gcp.submit_query(query=json_data_query,
                                                    dry_run="False")
 
