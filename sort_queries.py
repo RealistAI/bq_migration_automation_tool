@@ -9,33 +9,6 @@ import json
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-def create_uc4_jobs_table(project_id,
-                          dataset_id) -> None:
-    """
-    Uses the project_id and dataset_id to create the uc4_json table.
-
-    Args:
-    project_id: the project being used to create the uc4_json table.
-    dataset_id: the dataset being used to create the uc4_json table.
-    """
-    client = bigquery.Client()
-    try:
-        create_uc4_table = client.query(f"""
-                                           CREATE TABLE IF NOT EXISTS {project_id}.{dataset_id}.uc4_json (
-                                           job_id STRING,
-                                           json_data JSON);
-                                        """)
-
-        results = create_uc4_table.result()
-
-        for row in results:
-            logger.info(f"{row.url} : {row.view_count}")
-
-    except Exception as error:
-        logger.info(error)
-
-#create_uc4_jobs_table(config.PROJECT, config.DATASET)
-
 def sort_queries(project_id,
                  dataset_id) -> None:
     """
