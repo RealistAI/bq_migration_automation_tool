@@ -26,24 +26,19 @@ def sort_queries(project_id,
         # Get the JSON for that job after parsing through job names
         job = job.replace("\"", "").split(",")
         job = job[number_of_jobs]
-        json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{job}'"
-        json_data_query_results = gcp.submit_query(query=json_data_query,
-                                                   dry_run="False")
+        dependency_dict = utils.get_uc4_json(project_id=project_id, dataset_id=dataset_id, uc4_job_name=job)
         number_of_jobs += 1
 
-        for row in json_data_query_results:
-            json_data = row[0]
-            dependency_dict = json.loads(json_data)
-            sql_dependencies = dependency_dict['sql_dependencies']
-            workflow = {}
-            sql_path = utils.extract_sql_dependencies(sql_dependencies)
-            number = 1
-            for items in sql_path:
-                workflow[number] = items
-                number += 1
+        sql_dependencies = dependency_dict['sql_dependencies']
+        workflow = {}
+        sql_path = utils.extract_sql_dependencies(sql_dependencies)
+        number = 1
+        for items in sql_path:
+            workflow[number] = items
+            number += 1
 
-            run_order = {'uc4_job_name': job, 'sql_path': workflow}
-            list_of_uc4_jobs.append(run_order)
+        run_order = {'uc4_job_name': job, 'sql_path': workflow}
+        list_of_uc4_jobs.append(run_order)
 
     logger.info(f"list of uc4 jobs: {list_of_uc4_jobs}")
     print(f"list of uc4 jobs: {list_of_uc4_jobs}")
