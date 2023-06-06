@@ -1,5 +1,5 @@
 from google.cloud import bigquery
-from utils import gcp
+from utils import gcp, utils
 import config
 from pathlib import Path
 import os
@@ -36,7 +36,7 @@ def sort_queries(project_id,
             dependency_dict = json.loads(json_data)
             sql_dependencies = dependency_dict['sql_dependencies']
             workflow = {}
-            sql_path = extract_sql_dependencies(sql_dependencies)
+            sql_path = utils.extract_sql_dependencies(sql_dependencies)
             number = 1
             for items in sql_path:
                 workflow[number] = items
@@ -48,13 +48,3 @@ def sort_queries(project_id,
     logger.info(f"list of uc4 jobs: {list_of_uc4_jobs}")
     print(f"list of uc4 jobs: {list_of_uc4_jobs}")
     return list_of_uc4_jobs
-
-def extract_sql_dependencies(sql_dependencies):
-    sql_paths = []
-    for dependencies in sql_dependencies:
-        if dependencies.get('sql_dependencies'):
-            sql_paths.extend(extract_sql_dependencies(dependencies['sql_dependencies']))
-        else:
-            sql_file_path = dependencies.get("sql_file_path")
-            sql_paths.append(sql_file_path)
-    return sql_paths
