@@ -1,5 +1,5 @@
--- Translation time: 2023-06-06T20:03:51.227639Z
--- Translation job ID: 37529592-bca7-4155-8a20-e4c29c2f4725
+-- Translation time: 2023-06-06T21:01:17.027874Z
+-- Translation job ID: 71d2773c-0afa-4890-b2e9-12c10bf15100
 -- Source: dwh_preprocessed/radd_master_upd.sql
 -- Translated from: Teradata
 -- Translated to: BigQuery
