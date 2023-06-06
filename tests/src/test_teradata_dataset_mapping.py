@@ -20,8 +20,9 @@ def create_data_mapping_table():
 
     try:
         create_query = client.query(f"""
-                                    CREATE TABLE IF NOT EXISTS {config.PROJECT}.dataset_a.dataset_mapping(
-                                    table_mapping STRING)
+                                    CREATE TABLE {config.PROJECT}.dataset_a.dataset_mapping(
+                                    table_mapping_DDL STRING,
+                                    table_mapping_DML STRING)
                                     """);
 
         results  = create_query.result()
