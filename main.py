@@ -1,3 +1,4 @@
+import re
 import os
 import config
 from utils import utils
@@ -43,7 +44,9 @@ def main():
         # This gives you the job name on one variable a way to order the queries and their paths
         for i in range(1, len(steps) + 1):
             path_to_query = steps[i]
-            file_name = path_to_query[26:]
+            file_name = path_to_query.split("/")
+            file_name = file_name[-1]
+            print("file name is ", file_name)
             # Then you have the path to the sql for each consecutive step
             is_valid = gcp.validate_sql(sql_to_validate=path_to_query, uc4_job_name=job_name)
             logger.info(f"validity of the sql is {is_valid}")

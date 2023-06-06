@@ -38,7 +38,7 @@ def generate_table_mapping(project_id:str,
 
     # Find the interem tables
     sqls = utils.get_sql_dependencies(uc4_job=uc4_job,
-                                      repo_path=config.E2E_OUTPUT)
+                                      repo_path=config.DATASET_MAPPING_OUTPUT)
 
     table_mapping_DDL = {}
     table_mapping_DML = {}

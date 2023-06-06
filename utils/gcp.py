@@ -58,6 +58,9 @@ def validate_sql(sql_to_validate,
     """
 
     logger.info(f'Validating {sql_to_validate}')
+    if sql_to_validate == '':
+        exit()
+
     with open (sql_to_validate, 'r') as file:
         data = file.read()
     logger.info("data is ", type(data), data)

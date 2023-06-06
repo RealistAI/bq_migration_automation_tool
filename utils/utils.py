@@ -82,7 +82,7 @@ def get_sql_dependencies(uc4_job: dict,
             create_path_if_not_exists(repo_path)
             with open(Path(repo_path, file_name), 'r') as sql_file:
                 sqls.append(sql_file.read())
-            repo_path = config.E2E_OUTPUT
+            repo_path = config.DATASET_MAPPING_OUTPUT
 
     print("list of sql dependencies is ", sqls)
     return sqls

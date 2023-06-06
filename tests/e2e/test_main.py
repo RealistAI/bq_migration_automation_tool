@@ -22,10 +22,12 @@ class TestE2e:
         assert is_repo_pushed(f'{config.BASE_PATH}/UC4_SQL/')
         assert is_table_populated(project_id=config.PROJECT, dataset_id=config.DATASET) != None
         print(f"{config.TARGET_SQL_PATH}/teradata_sql.sql")
-        is_valid = os.path.isfile(f"{config.TARGET_SQL_PATH}/sql_1.sql")
+        is_valid = os.path.isfile(f"{config.TARGET_SQL_PATH}/fst_with_whitlst_cnt_check.sql")
         assert is_valid == True
-        is_valid2 = os.path.isfile(f"{config.TARGET_SQL_PATH}/sql_2.sql")
+        is_valid2 = os.path.isfile(f"{config.TARGET_SQL_PATH}/radd_master_upd.sql")
         assert is_valid2 == True
+        is_valid3 = os.path.isfile(f"{config.TARGET_SQL_PATH}/dw_table_current_roe.sql")
+        assert is_valid3 == True
 
 def is_table_populated(project_id,
                        dataset_id):
@@ -73,10 +75,17 @@ def is_repo_pushed(repo_path):
 def create_directories():
     root = Path(os.getcwd())
     utils.create_path_if_not_exists(config.E2E_OUTPUT)
-    os.system(f'echo "SELECT * FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/sql_1.sql')
-    os.system(f'echo "SELECT job FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/sql_2.sql')
-    yield
-    os.system("""
-              cd ~/git/bq_migration_automation_tool;
-              rm -r output/;
+    os.system(f"""
+              cd {config.E2E_OUTPUT};
+              mkdir faster_withdrawal_whitelist;
+              mkdir radd_master;
+              mkdir dw_table_current;
               """)
+    os.system(f'echo "SELECT * FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/faster_withdrawal_whitelist/fst_with_whitlst_cnt_check.sql')
+    os.system(f'echo "SELECT job FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/radd_master/radd_master_upd.sql')
+    os.system(f'echo "SELECT job FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/dw_table_current/dw_table_current_roe.sql')
+    yield
+#    os.system("""
+#              cd ~/git/bq_migration_automation_tool;
+#              rm -r output/;
+#              """)
