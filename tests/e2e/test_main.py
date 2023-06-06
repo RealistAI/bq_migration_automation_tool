@@ -5,13 +5,15 @@ import time
 import os
 from pathlib import Path
 from utils import utils, gcp
+from google.cloud import bigquery
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class TestE2e:
     def test_e2e(self,
-                 create_directories):
+                 create_directories,
+                 create_transpilation_log_table):
         # Clearing out local directories and buckets
         os.system('./prerun.sh')
         #os.system(f'rm -rf ~/{config.BASE_PATH}/*')
@@ -85,7 +87,30 @@ def create_directories():
     os.system(f'echo "SELECT job FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/radd_master/radd_master_upd.sql')
     os.system(f'echo "SELECT job FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/dw_table_current/dw_table_current_roe.sql')
     yield
-#    os.system("""
-#              cd ~/git/bq_migration_automation_tool;
-#              rm -r output/;
-#              """)
+    os.system("""
+              cd ~/git/bq_migration_automation_tool;
+              rm -r output/;
+              rm empty_file.txt;
+              """)
+
+@pytest.fixture(scope="session")
+def create_transpilation_log_table():
+    client = bigquery.Client()
+    try:
+        create_table_query = client.query(f"""
+                                          CREATE TABLE {config.PROJECT}.{config.DATASET}.transpilation_logs(
+                                              job_id STRING,
+                                              status STRING,
+                                              message STRING,
+                                              query STRING,
+                                              run_time TIMESTAMP
+                                          );""")
+
+        results = create_table_query.result()
+
+        for row in results:
+            print(f"{row.url} : {row.view_count}")
+
+    except Exception as error:
+        print(error)
+

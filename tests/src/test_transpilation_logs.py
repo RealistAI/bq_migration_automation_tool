@@ -10,11 +10,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class TestTranspilationLogs:
-    def test_create_log_table_successfully(self):
-        create_table = tl.create_transpilation_log_table(project_id=config.PROJECT, dataset_id="merriks_dataset")
-        assert create_table == None
-
-    def test_transpile_logs_into_table_with_success_data(self):
+    def test_transpile_logs_into_table_with_success_data(self, create_transpilation_log_table, delete_table):
         current_datetime = str(datetime.datetime.now())
         insert_values =  tl.transpile_logs_into_table(project_id=config.PROJECT, dataset_id="merriks_dataset", job_id="uc4_test_job_1", status="SUCCEEDED", message="null", query="null", run_time=current_datetime)
         assert insert_values != Exception
@@ -42,4 +38,25 @@ def delete_table():
         logger.info(results)
     except Exception as error:
         logger.info(f"Error is {error}")
+
+@pytest.fixture(scope="session")
+def create_transpilation_log_table():
+    client = bigquery.Client()
+    try:
+        create_table_query = client.query(f"""
+                                          CREATE TABLE {config.PROJECT}.merriks_dataset.transpilation_logs(
+                                              job_id STRING,
+                                              status STRING,
+                                              message STRING,
+                                              query STRING,
+                                              run_time TIMESTAMP
+                                          );""")
+
+        results = create_table_query.result()
+
+        for row in results:
+            print(f"{row.url} : {row.view_count}")
+
+    except Exception as error:
+        print(error)
 

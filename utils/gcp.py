@@ -59,7 +59,8 @@ def validate_sql(sql_to_validate,
 
     logger.info(f'Validating {sql_to_validate}')
     if sql_to_validate == '':
-        exit()
+        sql_to_validate = "empty_file.txt"
+        os.system(f"echo 'this file is empty' > {sql_to_validate}")
 
     with open (sql_to_validate, 'r') as file:
         data = file.read()

@@ -103,6 +103,18 @@ def extract_sql_dependencies(sql_dependencies: list):
             sql_paths.append(sql_file_path)
     return sql_paths
 
+def remove_non_alphanumeric(string):
+    ''' Removes all characters that are not numbers or letters
+
+    Args:
+    string: The string you wish to remove non alphanumeric characters from.
+    '''
+    alphanumeric_chars = []
+    for char in string:
+        if char.isalnum():
+            alphanumeric_chars.append(char)
+    return ''.join(alphanumeric_chars)
+
 
 
 
