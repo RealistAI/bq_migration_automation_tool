@@ -40,7 +40,7 @@ def generate_table_mapping(project_id: str,
                                  uc4_job_name=uc4_job_name)
 
     dataset = business_unit_map[business_unit]
-    repo_path = config.DATASET_MAPPING_OUTPUT
+    repo_path = config.SOURCE_SQL_PATH
 
     # Find the interem tables
     sqls = utils.get_sql_dependencies(uc4_job=uc4_job,

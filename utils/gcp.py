@@ -59,12 +59,9 @@ def validate_sql(sql_to_validate,
     sql_to_validate: the path to the sql to validate.
     uc4_job_name: the name of the sql job being validated.
     """
-    path_to_sql_to_validate = f'{config.BASE_PATH}/UC4_SQL/{sql_to_validate}'
+    path_to_sql_to_validate = f'{config.BASE_PATH}/UC4_SQL/teradata_sql/{sql_to_validate}'
     logger.info(f'Validating {path_to_sql_to_validate}')
     if sql_to_validate == '':
-        sql_to_validate = "empty_file.txt"
-        os.system(f"echo 'this file is empty' > {path_to_sql_to_validate}")
-
         return
 
     with open(path_to_sql_to_validate, 'r') as file:

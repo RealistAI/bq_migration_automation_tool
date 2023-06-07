@@ -76,16 +76,16 @@ def is_repo_pushed(repo_path):
 @pytest.fixture(scope="session")
 def create_directories():
     root = Path(os.getcwd())
-    utils.create_path_if_not_exists(config.E2E_OUTPUT)
+    utils.create_path_if_not_exists(config.SOURCE_SQL_PATH)
     os.system(f"""
-              cd {config.E2E_OUTPUT};
+              cd {config.SOURCE_SQL_PATH};
               mkdir faster_withdrawal_whitelist;
               mkdir radd_master;
               mkdir dw_table_current;
               """)
-    os.system(f'echo "SELECT * FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/faster_withdrawal_whitelist/fst_with_whitlst_cnt_check.sql')
-    os.system(f'echo "SELECT job FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/radd_master/radd_master_upd.sql')
-    os.system(f'echo "SELECT job FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.E2E_OUTPUT}/dw_table_current/dw_table_current_roe.sql')
+    os.system(f'echo "SELECT * FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.SOURCE_SQL_PATH}/faster_withdrawal_whitelist/fst_with_whitlst_cnt_check.sql')
+    os.system(f'echo "SELECT job FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.SOURCE_SQL_PATH}/radd_master/radd_master_upd.sql')
+    os.system(f'echo "SELECT job FROM \`michael-gilbert-dev.UC4_Jobs.uc4_to_sql_map\` LIMIT 1000" > {config.SOURCE_SQL_PATH}/dw_table_current/dw_table_current_roe.sql')
     yield
     os.system("""
               cd ~/git/bq_migration_automation_tool;
