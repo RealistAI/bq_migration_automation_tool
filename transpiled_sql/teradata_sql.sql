@@ -1,5 +1,5 @@
--- Translation time: 2023-06-06T21:01:17.027874Z
--- Translation job ID: 71d2773c-0afa-4890-b2e9-12c10bf15100
+-- Translation time: 2023-06-07T15:26:09.297490Z
+-- Translation job ID: 2a7fcf32-10c5-4f2c-a75c-b8c2f58ac209
 -- Source: dwh_preprocessed/teradata_sql.sql
 -- Translated from: Teradata
 -- Translated to: BigQuery

@@ -1,27 +1,24 @@
-import re
+import logging
 import os
+
 import config
-from utils import utils
-from utils import gcp
-from utils import git
-from pathlib import Path
-import transpilation_logs as tl
-import setup
 import sort_queries as s
 import teradata_to_bq_dataset_mapping as tdm
-import logging
+from utils import gcp
+from utils import git
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
 def main():
-    ''' Translates given SQL to Google dialect
+    """ Translates given SQL to Google dialect
 
-    This functions takes the SQL in a given github repository, clones
+    This functions takes the SQL in a given GitHub repository, clones
     it into the local file system, submits it to the BigQuery batch translation
     client, validates it all with dry-run queries, and finally opens a branch
-    in the given github repository, and pushes the validated sql to that new branch.
-    '''
+    in the given GitHub repository, and pushes the validated sql to that new branch.
+    """
     failures = 0
     list_of_uc4_jobs = s.sort_queries(config.PROJECT, config.DATASET)
     for uc4_job in list_of_uc4_jobs:

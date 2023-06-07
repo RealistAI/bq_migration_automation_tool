@@ -1,26 +1,25 @@
-from pathlib import Path
-from google.api_core import exceptions as gcp_exceptions
-import config
-import datetime
-import yaml
-import csv
-import os
-import logging
 import json
+import logging
+import os
+from pathlib import Path
+
+import config
 from utils import gcp
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 
 def create_path_if_not_exists(path) -> None:
     """
     Create the file path if it does not exist
 
     Args:
-    path: the file path we are creating if it doesnt exist.
+    path: the file path we are creating if it doesn't exist.
     """
     if not os.path.exists(path):
         os.makedirs(path)
+
 
 def get_uc4_json(project_id: str,
                  dataset_id: str,
@@ -37,7 +36,7 @@ def get_uc4_json(project_id: str,
     # get the json for this uc4 job from BigQuery
     json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = {uc4_job_name}"
     json_data_query_results = gcp.submit_query(query=json_data_query,
-                                                   dry_run="False")
+                                               dry_run=False)
 
     # Convert the JSON to a Dict
     for row in json_data_query_results:
@@ -47,8 +46,9 @@ def get_uc4_json(project_id: str,
         # Return it 
         return dependency_dict
 
+
 def get_sql_dependencies(uc4_job: dict,
-                         repo_path: Path) -> list():
+                         repo_path: Path) -> list:
     """
     Parse the uc4_job Dict to get the SQL dependencies
     Find those SQL files in the repo_path
@@ -59,7 +59,7 @@ def get_sql_dependencies(uc4_job: dict,
     repo_path: the path to the repo that contains the sql_files.
     """
 
-    sqls = []
+    sql_string = []
     # Extract the SQL Dependencies from the uc4_job Dict
     sql_dependencies = uc4_job['sql_dependencies']
     sql_path = extract_sql_dependencies(sql_dependencies)
@@ -69,7 +69,7 @@ def get_sql_dependencies(uc4_job: dict,
         print("file_path is ", file_path)
         print("\n")
         if len(file_path) == 0:
-            sqls.append(file_path)
+            sql_string.append(file_path)
         else:
             file_directory = file_path.split("/")
             file_directory = file_directory[-2]
@@ -78,21 +78,23 @@ def get_sql_dependencies(uc4_job: dict,
             repo_path = str(repo_path) + "/" + file_directory
             print("new repo path is", repo_path)
             print("\n")
-            file_name =  os.path.basename(file_path)
+            file_name = os.path.basename(file_path)
             create_path_if_not_exists(repo_path)
             with open(Path(repo_path, file_name), 'r') as sql_file:
-                sqls.append(sql_file.read())
+                sql_string.append(sql_file.read())
             repo_path = config.DATASET_MAPPING_OUTPUT
 
-    print("list of sql dependencies is ", sqls)
-    return sqls
+    print("list of sql dependencies is ", sql_string)
+    return sql_string
+
 
 def extract_sql_dependencies(sql_dependencies: list):
     """
-    extracts all the sql_dependencies/sql_file_paths from within json data from bigquery.(a list with nested dictionarys)
+    Extracts all the sql_dependencies/sql_file_paths from within json data from bigquery.
 
     Args:
-    sql_dependencies: The list containing the nested dictionaries which contain all the sql_dependencies such as the sql_file_paths needed for transpilation and validation.
+    sql_dependencies: The list containing the nested dictionaries which contain all the
+                      sql_dependencies such as the sql_file_paths needed for transpilation and validation.
     """
     sql_paths = []
     for dependencies in sql_dependencies:
@@ -103,18 +105,15 @@ def extract_sql_dependencies(sql_dependencies: list):
             sql_paths.append(sql_file_path)
     return sql_paths
 
+
 def remove_non_alphanumeric(string):
-    ''' Removes all characters that are not numbers or letters
+    """ Removes all characters that are not numbers or letters
 
     Args:
     string: The string you wish to remove non alphanumeric characters from.
-    '''
+    """
     alphanumeric_chars = []
     for char in string:
         if char.isalnum():
             alphanumeric_chars.append(char)
     return ''.join(alphanumeric_chars)
-
-
-
-

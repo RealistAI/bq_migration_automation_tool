@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -14,12 +15,14 @@ business_unit_map = {
     "A": "dataset_a",
     "B": "dataset_b",
     "C": "dataset_c",
-    "D": "dataset_d"
+    "D": "dataset_d",
+    "CREDIT": "dataset_e"
 }
 
-def generate_table_mapping(project_id:str,
+
+def generate_table_mapping(project_id: str,
                            dataset_id: str,
-                           uc4_job_name:str,
+                           uc4_job_name: str,
                            business_unit: str):
     """
     Generates the teradata sql to bq sql dataset mapping so that each teradata sql gets put into the correct bq dataset."
@@ -56,7 +59,8 @@ def generate_table_mapping(project_id:str,
             database = split_match[0].split(" ")
             table_id = split_match[2].split(" ")
             print("split match is", split_match)
-            table_mapping_DDL[f"Teradata dataset is {ddl_match.string}"] = f"BigQuery version is {database[:-1]}.{dataset}.{table_id[0]}"
+            table_mapping_DDL[
+                f"Teradata dataset is {ddl_match.string}"] = f"BigQuery version is {database[:-1]}.{dataset}.{table_id[0]}"
             print("table mapping DDL is", table_mapping_DDL)
 
         if dml_match:
@@ -67,14 +71,14 @@ def generate_table_mapping(project_id:str,
     # Write the table mappings to BigQuery
     ddl_table_mapping = str(table_mapping_DDL)
     dml_sql = str(table_mapping_DML)
-    client= bigquery.Client()
+    client = bigquery.Client()
 
     try:
         insert_query = client.query(f"""
                                     INSERT INTO {config.PROJECT}.{dataset}.dataset_mapping (table_mapping_DDL, table_mapping_DML)
                                     VALUES({ddl_table_mapping}, {dml_sql})
                                     """)
-        results  = insert_query.result()
+        results = insert_query.result()
         print(f"{results} uploaded to dataset_mapping table")
 
     except Exception as error:

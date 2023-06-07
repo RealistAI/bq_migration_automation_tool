@@ -9,8 +9,9 @@ import json
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
 def sort_queries(project_id,
-                 dataset_id) -> None:
+                 dataset_id) -> [str]:
     """
     Loads a CSV file full of the uc4_jobs, then runs a query to attain the specific JSON from those jobs. Thn all the jobs will be added to a list of dictionaries, where each job and its sqls will be added to its own dictionary to be validated by `main.py`.
 
@@ -34,13 +35,15 @@ def sort_queries(project_id,
             workflow = {}
             sql_path = utils.extract_sql_dependencies(sql_dependencies)
             number = 1
+            business_unit = dependency_dict['business_unit']
             for items in sql_path:
                 workflow[number] = items
                 number += 1
 
-            run_order = {'uc4_job_name': job, 'sql_path': workflow}
+            run_order = {'uc4_job_name': job, 'sql_path': workflow, 'business_unit': business_unit}
             list_of_uc4_jobs.append(run_order)
 
     logger.info(f"list of uc4 jobs: {list_of_uc4_jobs}")
     print(f"list of uc4 jobs: {list_of_uc4_jobs}")
+
     return list_of_uc4_jobs
