@@ -18,7 +18,7 @@ UC4_SQL_REPO = {
         "branch": "master"
         }
 
-BASE_PATH = Path(Path.home(), 'required_repos', UC4_SQL_REPO_NAME)
+BASE_PATH = Path(Path.home(), 'required_repos')
 
 # GCP Project that should perform the translations
 PROJECT = "michael-gilbert-dev"
@@ -27,12 +27,12 @@ PROJECT = "michael-gilbert-dev"
 PREPROCESED_BUCKET = "gs://dwh_preprocessed"
 
 # Directory housing the Github repository with the Teradata SQL to translate
-SOURCE_SQL_PATH = Path(BASE_PATH, 'teradata_sql')
+SOURCE_SQL_PATH = Path(BASE_PATH, UC4_SQL_REPO_NAME, 'teradata_sql')
 
 # GCS URI For the translated blobs
 TRANSLATED_BUCKET = "gs://dwh_translated"
 
-DATASET_MAPPING_OUTPUT = Path(BASE_PATH, "output", "bteq", "BU", "SIMBA", "AMPS")
+DATASET_MAPPING_OUTPUT = Path(BASE_PATH, UC4_SQL_REPO_NAME, "output", "bteq", "BU", "SIMBA", "AMPS")
 
 E2E_OUTPUT = Path(os.getcwd(), "output", "bteq", "BU", "SIMBA", "AMPS")
 
@@ -40,7 +40,7 @@ E2E_OUTPUT = Path(os.getcwd(), "output", "bteq", "BU", "SIMBA", "AMPS")
 SQL_TO_VALIDATE = Path(os.getcwd(), "transpiled_sql")
 
 # The directory in the origin Github repo for the validated Google SQL
-TARGET_SQL_PATH = Path(BASE_PATH, 'bigquery_sql')
+TARGET_SQL_PATH = Path(BASE_PATH, UC4_SQL_REPO_NAME, 'bigquery_sql')
 
 # Path to the DWH Migration tool required config.
 CONFIG = Path(os.getcwd(), 'config', 'config.yaml')

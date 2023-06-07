@@ -47,33 +47,32 @@ def generate_table_mapping(project_id:str,
     table_mapping_DML = {}
     # Identify if the SQLs are DML or DDL
     for sql in sqls:
-        match = re.search("^CREATE|DROP|ALTER|TRUNCATE|RENAME", sql)
+        ddl_match = re.findall("^CREATE|DROP|ALTER|TRUNCATE|RENAME(.*?);", sql)
+        dml_match = re.findall("^SELECT|INSERT|UPDATE|DELETE(.*?);", sql)
 
-        if match is not None:
+        if ddl_match:
             # Tables will look like dataset.table. We can split by period to get the dataset
-            split_match = str(match.string).split('.')
+            split_match = str(ddl_match.string).split('.')
+            database = split_match[0].split(" ")
+            table_id = split_match[2].split(" ")
             print("split match is", split_match)
-            table_mapping_DDL[f"Teradata dataset is {match.string}"] = f"BigQuery version is {split_match[0]}.{dataset}.{split_match[2]}"
+            table_mapping_DDL[f"Teradata dataset is {ddl_match.string}"] = f"BigQuery version is {database[:-1]}.{dataset}.{table_id[0]}"
             print("table mapping DDL is", table_mapping_DDL)
 
-    for sql in sqls:
-        match = re.search("^SELECT|INSERT|UPDATE|DELETE", sql)
-
-        if match is not None:
+        if dml_match:
             # Tables will look like dataset.table. We can split by period to get the dataset
-            split_match = str(match.string).split('.')
-            print("split match is", split_match)
-            table_mapping_DML[f"Teradata dataset is {match.string}"] = f"BigQuery version is {split_match[0]}.{dataset}.{split_match[2]}"
-            print("table mapping DDL is", table_mapping_DML)
+            table_mapping_DML[sql] = dml_match
+            print(f"Found the following DML SQL Statements {table_mapping_DML}")
 
     # Write the table mappings to BigQuery
-    table_mapping = str(table_mapping)
+    ddl_table_mapping = str(table_mapping_DDL)
+    dml_sql = str(table_mapping_DML)
     client= bigquery.Client()
 
     try:
         insert_query = client.query(f"""
-                                    INSERT INTO {config.PROJECT}.{dataset}.dataset_mapping (table_mapping)
-                                    VALUES('''{table_mapping}''')
+                                    INSERT INTO {config.PROJECT}.{dataset}.dataset_mapping (table_mapping_DDL, table_mapping_DML)
+                                    VALUES({ddl_table_mapping}, {dml_sql})
                                     """)
         results  = insert_query.result()
         print(f"{results} uploaded to dataset_mapping table")
