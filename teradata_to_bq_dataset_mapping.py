@@ -3,6 +3,8 @@ from google.cloud import bigquery
 import config
 import json
 import re
+import os
+from pathlib import Path
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -35,44 +37,43 @@ def generate_table_mapping(project_id:str,
                                  uc4_job_name=uc4_job_name)
 
     dataset = business_unit_map[business_unit]
+    repo_path = config.DATASET_MAPPING_OUTPUT
 
     # Find the interem tables
     sqls = utils.get_sql_dependencies(uc4_job=uc4_job,
-                                      repo_path=config.DATASET_MAPPING_OUTPUT)
+                                      repo_path=repo_path)
 
     table_mapping_DDL = {}
     table_mapping_DML = {}
     # Identify if the SQLs are DML or DDL
-    for sql_DDL in sqls:
-        match = re.search("^CREATE", sql_DDL)
+    for sql in sqls:
+        match = re.search("^CREATE|DROP|ALTER|TRUNCATE|RENAME", sql)
 
         if match is not None:
             # Tables will look like dataset.table. We can split by period to get the dataset
             split_match = str(match.string).split('.')
             print("split match is", split_match)
-            table_mapping_DDL[f"Teradata dataset is {split_match[1]}"] = f"BigQuery dataset is {dataset}"
+            table_mapping_DDL[f"Teradata dataset is {match.string}"] = f"BigQuery version is {split_match[0]}.{dataset}.{split_match[2]}"
             print("table mapping DDL is", table_mapping_DDL)
 
-    for sql_DML in sqls:
-        match = re.search("^SELECT|INSERT", sql_DML)
+    for sql in sqls:
+        match = re.search("^SELECT|INSERT|UPDATE|DELETE", sql)
 
         if match is not None:
             # Tables will look like dataset.table. We can split by period to get the dataset
             split_match = str(match.string).split('.')
             print("split match is", split_match)
-            table_mapping_DML[f"Teradata dataset is {split_match[1]}"] = f"BigQuery dataset is {dataset}"
-            print("table mapping DML is", table_mapping_DML)
-
-    table_mapping_DDL = str(table_mapping_DDL)
-    table_mapping_DML = str(table_mapping_DML)
+            table_mapping_DML[f"Teradata dataset is {match.string}"] = f"BigQuery version is {split_match[0]}.{dataset}.{split_match[2]}"
+            print("table mapping DDL is", table_mapping_DML)
 
     # Write the table mappings to BigQuery
+    table_mapping = str(table_mapping)
     client= bigquery.Client()
 
     try:
         insert_query = client.query(f"""
-                                    INSERT INTO {config.PROJECT}.{dataset}.dataset_mapping (table_mapping_DDL, table_mapping_DML)
-                                    VALUES('''{table_mapping_DDL}''', '''{table_mapping_DML}''')
+                                    INSERT INTO {config.PROJECT}.{dataset}.dataset_mapping (table_mapping)
+                                    VALUES('''{table_mapping}''')
                                     """)
         results  = insert_query.result()
         print(f"{results} uploaded to dataset_mapping table")

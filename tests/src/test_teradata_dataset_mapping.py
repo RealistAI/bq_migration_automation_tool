@@ -7,7 +7,7 @@ import pytest
 
 class TestDatasetMapping:
     def test_generate_table_mapping_success(self, create_data_mapping_table):
-        dataset_mapping = tdm.generate_table_mapping(project_id=config.PROJECT, dataset_id=config.DATASET, uc4_job_name="UC4_JOB_1", business_unit="A")
+        dataset_mapping = tdm.generate_table_mapping(project_id=config.PROJECT, dataset_id=config.DATASET, uc4_job_name='"UC4_JOB_1"', business_unit="A")
         assert type(dataset_mapping) == type(str())
 
     def test_generate_table_mapping_fail_due_to_invalid_job(self):
@@ -20,9 +20,8 @@ def create_data_mapping_table():
 
     try:
         create_query = client.query(f"""
-                                    CREATE TABLE {config.PROJECT}.dataset_a.dataset_mapping(
-                                    table_mapping_DDL STRING,
-                                    table_mapping_DML STRING)
+                                    CREATE TABLE {config.PROJECT}.{config.DATASET}.dataset_mapping(
+                                    table_mapping STRING)
                                     """);
 
         results  = create_query.result()

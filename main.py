@@ -8,6 +8,7 @@ from pathlib import Path
 import transpilation_logs as tl
 import setup
 import sort_queries as s
+import teradata_to_bq_dataset_mapping as tdm
 import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -22,6 +23,12 @@ def main():
     in the given github repository, and pushes the validated sql to that new branch.
     '''
     failures = 0
+    list_of_uc4_jobs = s.sort_queries(config.PROJECT, config.DATASET)
+    for uc4_job in list_of_uc4_jobs:
+        steps = uc4_job['sql_path']
+        job_name = uc4_job['uc4_job_name']
+        business_unit = uc4_job['business_unit']
+        tdm.generate_table_mapping(project_id=config.PROJECT, dataset_id=config.DATASET, uc4_job_name=job_name, business_unit=business_unit)
 
     # Ensure intermediary GCS buckets and directories are empty and run BQMS
     os.system(f'''

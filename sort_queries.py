@@ -23,7 +23,7 @@ def sort_queries(project_id,
     with open("uc4_jobs.csv", "r") as csv_of_job_names:
         header = csv_of_job_names.readline()
         for jobs in csv_of_job_names:
-            # Get the JSON for that job after parsing through job namesjob
+            # Get the JSON for that job after parsing through job names
             job = jobs.split(",")
             job = job[1]
             print("job is", job, type(job))
