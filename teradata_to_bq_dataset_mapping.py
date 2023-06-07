@@ -1,6 +1,6 @@
 import logging
 import re
-
+import os
 from google.cloud import bigquery
 
 import config
@@ -46,6 +46,8 @@ def generate_table_mapping(project_id: str,
 
     table_mapping_ddl = {}
     table_mapping_dml = {}
+    object_mapping = {}
+    object_list = []
     dml_string = ''
     ddl_string = ''
 
@@ -63,19 +65,37 @@ def generate_table_mapping(project_id: str,
                 # Tables will look like dataset.table. We can split by period to get the dataset
                 split_match = str(ddl_match.string).split('.')
                 database = split_match[0].split(" ")
+                print("database is ", database)
                 table_id = split_match[2].split(" ")
                 ddl_string = f'{ddl_string}{sql_statement};'
                 print("split match is", split_match)
                 table_mapping_ddl[
-                    f"Teradata dataset is {ddl_match.string}"] = f"""BigQuery version is 
-                                                                     {database[:-1]}.{dataset}.{table_id[0]}"""
+                    f"Teradata dataset is {ddl_match.string}"] = f"""BigQuery version is
+                                                                     {database[-1]}.{dataset}.{table_id[0]}"""
                 print("table mapping DDL is", table_mapping_ddl)
+                table_id = table_id[0]
+                mapping_block = {
+                    "source": {
+                        "type": "",
+                        "database": "SIMBA",
+                        "schema": f"{split_match[1]}",
+                        "relation": f"{table_id}"},
+                    "target": {
+                        "database": "gcp_project",
+                        "schema": f"{dataset}"}
+                }
+                object_list.append(mapping_block)
 
             if dml_match:
                 # Tables will look like dataset.table. We can split by period to get the dataset
                 table_mapping_dml[sql] = dml_match
                 dml_string = f'{dml_string}{dml_match.string};'
                 print(f"Found the following DML SQL Statements {sql_statement}")
+
+
+    object_mapping["name_map"] = object_list
+    print("object_mapping is ", object_mapping)
+    os.system(f"echo {object_mapping} > object_mapping.config")
 
     # Write the table mappings to BigQuery
     # ddl_table_mapping = str(table_mapping_ddl)
@@ -88,9 +108,9 @@ def generate_table_mapping(project_id: str,
 
     try:
         query = f"""
-        INSERT INTO {config.PROJECT}.{dataset}.dataset_mapping 
+        INSERT INTO {config.PROJECT}.{dataset}.dataset_mapping
         (table_mapping_ddl, table_mapping_dml)
-        VALUES('{ddl_string}', '{dml_string}')
+        VALUES('''{ddl_string}''', '''{dml_string}''')
         """
         print(f'\nSubmitting query: {query}\n')
         insert_query = client.query(query)
