@@ -59,7 +59,7 @@ def get_sql_dependencies(uc4_job: dict,
     repo_path: the path to the repo that contains the sql_files.
     """
 
-    sql_string = []
+    sql_strings = []
     # Extract the SQL Dependencies from the uc4_job Dict
     sql_dependencies = uc4_job['sql_dependencies']
     sql_path = extract_sql_dependencies(sql_dependencies)
@@ -69,7 +69,7 @@ def get_sql_dependencies(uc4_job: dict,
         print("file_path is ", file_path)
         print("\n")
         if len(file_path) == 0:
-            sql_string.append(file_path)
+            pass
         else:
             file_directory = file_path.split("/")
             file_directory = file_directory[-2]
@@ -81,11 +81,11 @@ def get_sql_dependencies(uc4_job: dict,
             file_name = os.path.basename(file_path)
             create_path_if_not_exists(repo_path)
             with open(Path(repo_path, file_name), 'r') as sql_file:
-                sql_string.append(sql_file.read())
+                sql_strings.append(sql_file.read())
             repo_path = config.DATASET_MAPPING_OUTPUT
 
-    print("list of sql dependencies is ", sql_string)
-    return sql_string
+    print("list of sql dependencies is ", sql_strings)
+    return sql_strings
 
 
 def extract_sql_dependencies(sql_dependencies: list):

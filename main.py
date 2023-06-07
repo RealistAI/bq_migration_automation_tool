@@ -22,10 +22,12 @@ def main():
     failures = 0
     list_of_uc4_jobs = s.sort_queries(config.PROJECT, config.DATASET)
     for uc4_job in list_of_uc4_jobs:
-        steps = uc4_job['sql_path']
         job_name = uc4_job['uc4_job_name']
         business_unit = uc4_job['business_unit']
-        tdm.generate_table_mapping(project_id=config.PROJECT, dataset_id=config.DATASET, uc4_job_name=job_name, business_unit=business_unit)
+        tdm.generate_table_mapping(project_id=config.PROJECT,
+                                   dataset_id=config.DATASET,
+                                   uc4_job_name=job_name,
+                                   business_unit=business_unit)
 
     # Ensure intermediary GCS buckets and directories are empty and run BQMS
     os.system(f'''
@@ -71,9 +73,8 @@ def main():
     logger.info(f'Pushing validated SQL to {repo_directory_name}')
     commit_message = f'Adding transpiled and validated GoogleSQL to the {repo_directory_name}'
 
-    branch_name = git.push_to_git(remote_repo=config.UC4_SQL_REPO,
-                                  commit_message=commit_message)
+    git.push_to_git(remote_repo=config.UC4_SQL_REPO, commit_message=commit_message)
+
 
 if __name__ == "__main__":
     main()
-

@@ -2,10 +2,10 @@
   "name_mapping": [
 		{
 		  "source": {
-				"type": "RELATION",
-				"database": "some_teradata_db",
-				"schema": "some_teradata_schema",
-				"atribute": "legacy_table"
+			  "type": "RELATION",
+			  "database": "some_teradata_db",
+			  "schema": "some_teradata_schema",
+			  "atribute": "legacy_table"
 			},
 			"target": {
 				"database": "bigquery-public-data",
