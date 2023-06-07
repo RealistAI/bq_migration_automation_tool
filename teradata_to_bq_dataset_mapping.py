@@ -4,7 +4,9 @@ import os
 from google.cloud import bigquery
 
 import config
+import json
 from utils import utils, gcp
+import datetime
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -73,7 +75,7 @@ def generate_table_mapping(project_id: str,
                     f"Teradata dataset is {ddl_match.string}"] = f"""BigQuery version is
                                                                      {database[-1]}.{dataset}.{table_id[0]}"""
                 print("table mapping DDL is", table_mapping_ddl)
-                table_id = table_id[0]
+                table_id = table_id[0].replace("`", "")
                 mapping_block = {
                     "source": {
                         "type": "",
@@ -87,7 +89,6 @@ def generate_table_mapping(project_id: str,
                 object_list.append(mapping_block)
 
             if dml_match:
-                # Tables will look like dataset.table. We can split by period to get the dataset
                 table_mapping_dml[sql] = dml_match
                 dml_string = f'{dml_string}{dml_match.string};'
                 print(f"Found the following DML SQL Statements {sql_statement}")
@@ -95,11 +96,10 @@ def generate_table_mapping(project_id: str,
 
     object_mapping["name_map"] = object_list
     print("object_mapping is ", object_mapping)
-    os.system(f"echo {object_mapping} > object_mapping.config")
+    with open(config.OBJECT_MAPPING, "w") as json_file:
+        json.dump(object_mapping, json_file)
 
     # Write the table mappings to BigQuery
-    # ddl_table_mapping = str(table_mapping_ddl)
-    # dml_sql = str(table_mapping_dml)
     client = bigquery.Client()
     if ddl_string == '':
         ddl_string = 'Null'
