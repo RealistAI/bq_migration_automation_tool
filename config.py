@@ -37,10 +37,9 @@ SQL_TO_VALIDATE = Path(os.getcwd(), "transpiled_sql")
 TARGET_SQL_PATH = Path(BASE_PATH, UC4_SQL_REPO_NAME, 'bigquery_sql')
 
 # Path to the DWH Migration tool required config.
-CONFIG = Path(os.getcwd(), 'config', 'config.yaml')
-
-# Path to object name mapping config file
-OBJECT_MAPPING = Path(os.getcwd(), 'config', "object_name_mapping.json")
+CONFIG_BASE = Path(os.getcwd(), 'config')
+CONFIG_YAML = Path(CONFIG_BASE, 'config.yaml')
+OBJECT_MAPPING = Path(CONFIG_BASE, "object_name_mapping.json")
 
 # Debug mode?
 DEBUG = True

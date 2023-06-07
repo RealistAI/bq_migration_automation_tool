@@ -16,7 +16,7 @@ class TestE2e:
                  create_transpilation_log_table):
         # Clearing out local directories and buckets
         os.system('./prerun.sh')
-        #os.system(f'rm -rf ~/{config.BASE_PATH}/*')
+        os.system(f'rm -rf ~/{config.BASE_PATH}/*')
         # Run make run to run the setup and main functions.
         os.system('make run')
         # assert transpiled and validated SQL are in the git repo

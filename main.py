@@ -37,7 +37,7 @@ def main():
     export BQMS_INPUT_PATH={config.SOURCE_SQL_PATH};
     export BQMS_TRANSLATED_PATH={config.TRANSLATED_BUCKET};
     export BQMS_POSTPROCESSED_PATH={config.SQL_TO_VALIDATE};
-    export BQMS_CONFIG_PATH={config.CONFIG};
+    export BQMS_CONFIG_PATH={config.CONFIG_YAML};
     export BQMS_VERBOSE={config.DEBUG};
     bqms-run
     ''')

@@ -78,13 +78,14 @@ def generate_table_mapping(project_id: str,
                 table_id = table_id[0].replace("`", "")
                 mapping_block = {
                     "source": {
-                        "type": "",
+                        "type": "schema",
                         "database": "SIMBA",
-                        "schema": f"{split_match[1]}",
-                        "relation": f"{table_id}"},
+                        "schema": split_match[1],
+                        "relation": table_id},
                     "target": {
                         "database": "gcp_project",
-                        "schema": f"{dataset}"}
+                        "schema": dataset,
+                        "relation": table_id}
                 }
                 object_list.append(mapping_block)
 
