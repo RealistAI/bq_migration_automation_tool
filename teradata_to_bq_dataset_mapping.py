@@ -78,12 +78,12 @@ def generate_table_mapping(project_id: str,
                 table_id = table_id[0].replace("`", "")
                 mapping_block = {
                     "source": {
-                        "type": "schema",
-                        "database": "SIMBA",
+                        "type": "RELATION",
+                        "database": "simba",
                         "schema": split_match[1],
                         "relation": table_id},
                     "target": {
-                        "database": "gcp_project",
+                        "database": config.PROJECT,
                         "schema": dataset,
                         "relation": table_id}
                 }
@@ -93,7 +93,6 @@ def generate_table_mapping(project_id: str,
                 table_mapping_dml[sql] = dml_match
                 dml_string = f'{dml_string}{dml_match.string};'
                 print(f"Found the following DML SQL Statements {sql_statement}")
-
 
     object_mapping["name_map"] = object_list
     print("object_mapping is ", object_mapping)
@@ -109,7 +108,7 @@ def generate_table_mapping(project_id: str,
 
     try:
         query = f"""
-        INSERT INTO {config.PROJECT}.{dataset}.dataset_mapping
+        INSERT INTO `{config.PROJECT}.{config.DATASET}.dataset_mapping`
         (table_mapping_ddl, table_mapping_dml)
         VALUES('''{ddl_string}''', '''{dml_string}''')
         """

@@ -34,10 +34,11 @@ def get_uc4_json(project_id: str,
     """
 
     # get the json for this uc4 job from BigQuery
-    json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = {uc4_job_name}"
+    json_data_query = f"SELECT json_data FROM {project_id}.{dataset_id}.uc4_json WHERE job_id = '{uc4_job_name}'"
     json_data_query_results = gcp.submit_query(query=json_data_query,
                                                dry_run=False)
 
+    print(json_data_query)
     # Convert the JSON to a Dict
     for row in json_data_query_results:
         json_data = row[0]
@@ -56,7 +57,7 @@ def get_sql_dependencies(uc4_job: dict,
 
     Args:
     uc4_job: the dictionary containing the paths to the sql_files.
-    repo_path: the path to the repo that contains the sql_files.
+    repo_path: the path to the repo that contains the ql_files.
     """
 
     sql_strings = []
@@ -71,16 +72,11 @@ def get_sql_dependencies(uc4_job: dict,
         if len(file_path) == 0:
             pass
         else:
-            file_directory = file_path.split("/")
-            file_directory = file_directory[-2]
-            print("file_directory is ", file_directory)
-            print("\n")
-            repo_path = str(repo_path) + "/" + file_directory
+            repo_path = str(repo_path) + "/" + file_path
             print("new repo path is", repo_path)
             print("\n")
-            file_name = os.path.basename(file_path)
             create_path_if_not_exists(repo_path)
-            with open(Path(repo_path, file_name), 'r') as sql_file:
+            with open(repo_path, 'r') as sql_file:
                 sql_strings.append(sql_file.read())
             repo_path = config.SOURCE_SQL_PATH
 

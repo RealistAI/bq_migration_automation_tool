@@ -1,7 +1,5 @@
-# input and output folders 
-failure_logs/*
-translation_reports/*
-tranpiled_sql/*
+# input and output folders
+transpiled_sql/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

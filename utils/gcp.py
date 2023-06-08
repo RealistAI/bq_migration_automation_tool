@@ -59,14 +59,13 @@ def validate_sql(sql_to_validate,
     sql_to_validate: the path to the sql to validate.
     uc4_job_name: the name of the sql job being validated.
     """
-    path_to_sql_to_validate = f'{config.BASE_PATH}/UC4_SQL/teradata_sql/{sql_to_validate}'
+    path_to_sql_to_validate = f'{config.SQL_TO_VALIDATE}/{sql_to_validate}'
     logger.info(f'Validating {path_to_sql_to_validate}')
     if sql_to_validate == '':
         return
 
     with open(path_to_sql_to_validate, 'r') as file:
         data = file.read()
-    logger.info("data is ", type(data), data)
 
     logger.debug(f'Submitting {path_to_sql_to_validate} for dry-run')
     query_job = submit_query_for_validation(query=data,

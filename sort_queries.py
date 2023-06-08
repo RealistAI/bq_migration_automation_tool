@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def sort_queries(project_id,
                  dataset_id) -> [str]:
     """
-    Loads a CSV file full of the uc4_jobs, then runs a query to attain the specific JSON from those jobs. Thn all the jobs will be added to a list of dictionaries, where each job and its sqls will be added to its own dictionary to be validated by `main.py`.
+    Loads a CSV file full of the uc4_jobs, then runs a query to attain the specific JSON from those jobs. Thn all the jobs will be added to a list of dictionaries, where each job and its sqls will be added to its own dictionary to be validated by `translate_sql.py`.
 
     Args:
     project: the project being used to access the uc4_to_sql_map table.
@@ -23,12 +23,16 @@ def sort_queries(project_id,
 
     with open("uc4_jobs.csv", "r") as csv_of_job_names:
         header = csv_of_job_names.readline()
-        for jobs in csv_of_job_names:
+        for dirty_job in csv_of_job_names:
             # Get the JSON for that job after parsing through job names
-            job = jobs.split(",")
-            job = job[1]
+            dirty_job = dirty_job.split(",")
+            dirty_job = dirty_job[1].replace("\"", "")
+            raw_text = repr(dirty_job)
+            job = raw_text.replace("\\n", "").replace("'", "")
             print("job is", job, type(job))
-            dependency_dict = utils.get_uc4_json(project_id=project_id, dataset_id=dataset_id, uc4_job_name=job)
+            dependency_dict = utils.get_uc4_json(project_id=project_id,
+                                                 dataset_id=dataset_id,
+                                                 uc4_job_name=job)
             print("dependency dict is", dependency_dict, type(dependency_dict))
 
             sql_dependencies = dependency_dict['sql_dependencies']
@@ -37,6 +41,10 @@ def sort_queries(project_id,
             number = 1
             business_unit = dependency_dict['business_unit']
             for items in sql_path:
+                if items == '':
+                    pass
+                elif items is None:
+                    pass
                 workflow[number] = items
                 number += 1
 

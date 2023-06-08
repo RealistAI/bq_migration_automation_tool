@@ -20,18 +20,11 @@ def main():
     in the given GitHub repository, and pushes the validated sql to that new branch.
     """
     failures = 0
-    list_of_uc4_jobs = s.sort_queries(config.PROJECT, config.DATASET)
-    for uc4_job in list_of_uc4_jobs:
-        job_name = uc4_job['uc4_job_name']
-        business_unit = uc4_job['business_unit']
-        tdm.generate_table_mapping(project_id=config.PROJECT,
-                                   dataset_id=config.DATASET,
-                                   uc4_job_name=job_name,
-                                   business_unit=business_unit)
 
     # Ensure intermediary GCS buckets and directories are empty and run BQMS
+
     os.system(f'''
-    ./prerun.sh;
+    ./prerun.sh
     export BQMS_PROJECT={config.PROJECT};
     export BQMS_PREPROCESSED_PATH={config.PREPROCESED_BUCKET};
     export BQMS_INPUT_PATH={config.SOURCE_SQL_PATH};
@@ -39,12 +32,14 @@ def main():
     export BQMS_POSTPROCESSED_PATH={config.SQL_TO_VALIDATE};
     export BQMS_CONFIG_PATH={config.CONFIG_YAML};
     export BQMS_VERBOSE={config.DEBUG};
+    export BQMS_OBJECT_NAME_MAPPING_PATH={config.OBJECT_MAPPING};
     bqms-run
     ''')
 
     # Iterate through BQMS output and validate transpiled SQL
     list_of_uc4_jobs = s.sort_queries(config.PROJECT, config.DATASET)
     for uc4_job in list_of_uc4_jobs:
+        print(f"\nExtracting details about UC4 JOB {uc4_job['uc4_job_name']}\n")
         steps = uc4_job['sql_path']
         job_name = uc4_job['uc4_job_name']
         # This gives you the job name on one variable a way to order the queries and their paths
@@ -55,17 +50,14 @@ def main():
             print("file name is ", file_name)
             # Then you have the path to the sql for each consecutive step
             is_valid = gcp.validate_sql(sql_to_validate=path_to_query, uc4_job_name=job_name)
-            logger.info(f"validity of the sql is {is_valid}")
+            logger.info(f"Validate SQL returned: {is_valid}")
 
             # If SQL in file is valid copy it into UC4_SQL_REPO/bigquery_sql/
             if is_valid is True:
                 logger.info(f'{job_name} validated and added to {config.TARGET_SQL_PATH}')
                 os.system(f'cp {config.SQL_TO_VALIDATE}/{file_name} {config.TARGET_SQL_PATH}/')
-            else:
-                failures += 1
 
-    message = f'''\nAll files in {config.TARGET_SQL_PATH} have been processed with
-    {failures} failed validations.'''
+    message = f'Completed transpilation process, to read logs see: {config.LOGGING}'
     logger.info(message)
 
     repo_directory_name = git.get_path_from_git_repo(repo_dir=config.UC4_SQL_REPO['path'])

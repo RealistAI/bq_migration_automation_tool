@@ -25,7 +25,7 @@ PROJECT = "michael-gilbert-dev"
 PREPROCESED_BUCKET = "gs://dwh_preprocessed"
 
 # Directory housing the GitHub repository with the Teradata SQL to translate
-SOURCE_SQL_PATH = Path(BASE_PATH, UC4_SQL_REPO_NAME, 'teradata_sql', 'output', 'bteq', 'BU', 'SIMBA', 'AMPS')
+SOURCE_SQL_PATH = Path(BASE_PATH, UC4_SQL_REPO_NAME, 'teradata_sql')
 
 # GCS URI For the translated blobs
 TRANSLATED_BUCKET = "gs://dwh_translated"
@@ -39,9 +39,11 @@ TARGET_SQL_PATH = Path(BASE_PATH, UC4_SQL_REPO_NAME, 'bigquery_sql')
 # Path to the DWH Migration tool required config.
 CONFIG_BASE = Path(os.getcwd(), 'config')
 CONFIG_YAML = Path(CONFIG_BASE, 'config.yaml')
-OBJECT_MAPPING = Path(CONFIG_BASE, "object_name_mapping.json")
+OBJECT_MAPPING = Path(CONFIG_BASE, "name_map.json")
 
 # Debug mode?
 DEBUG = True
 
 DATASET = "UC4_Jobs"
+
+LOGGING = f'`{PROJECT}.{DATASET}.transpilation_logs`'
