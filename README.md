@@ -38,6 +38,10 @@ The first part of the Makefile will run the setup.py. This script will clone the
 into the local file system, if the given Github repo exists already in our local file system, we will 
 do a git pull instead.
 
+## Dataset Mapping
+The Dataset Mapping parses through all the SQL's in the `/teradata_sql` to find their dataset and project, 
+and then maps them to their proper Bigquery dataset and project for the transpilation process.
+
 ## Transpilation
 The transpilation is completed using `bqms-run`. The script sets the environment variables required by 
 the BQMS tool and then run the `bqms-run` command to initilize the transpilation process. 
@@ -47,15 +51,12 @@ We then iterate through the files in the BQMS output submit a dry run query for 
 If the query is successful the file will then be moved into the UC4_SQL_REPO in the bigquery_sql/ 
 directory.
 
-## Failure Logs
-If any of the BigQuery dry runs fails, it creates a CSV file in the `failure_logs/` directory that 
-contains the name of the file that failed the dry run query, the type of error it failed with, the 
-error message, and the timestamp of the run itself.
+## Transpilation Logs
+At the end of the Dry-run validation, whether a dry-run is successul for not, the query data is uploaded to the transpilation_logs table in BigQuery where it can be accessed to get accurate logs for the dry-run success or failure. If the Dry-run is successful it will have a status of `SUCCEEDED`, it will have the time the dry-run ran and the specific query that succeeded. If the dry-run fails it will have a status of `FAILED`, it will have the time the dry-run ran, the specific query that failed and the error message explaining why the dry-run validation wasn't successful.
 
 ## Github Integration
 Upon completion of the validaiton process, the script will create a new branch in the origin repository, 
 and push the updated UC4 SQL. 
-
 
 ## Usage
 In order to utilize this tool, you first need to clone the project into the directory of your choice 
@@ -73,12 +74,27 @@ The repository url and branch containing the dwh-migration-tools<br>
 
 #### UC4_SQL_REPO
 
-The repository url and branch containing the SQL's to translate<br>
+The repository url and branch containing the SQL's to transpile & validate<br>
+
+
+#### UC4_SQL_REPO_NAME
+
+The name of the repository containing the SQL's to transpile & validate<br>
+
+
+#### BASE_PATH
+
+The base path for which the dataset mapping grabs the SQLs that is parses through and adjusts to work for BigQuery<br>
 
 
 #### PROJECT
 
-The name of the Google Cloud Platform project that will performing the bulk translation<br>
+The name of the Google Cloud Platform project that will perform the bulk transpilation & validation<br>
+
+
+#### DATASET
+
+The name of the Google Cloud Platform Dataset that will perform the bulk transpilation & validation.<br>
 
 
 #### PREPROCESED_BUCKET
@@ -107,16 +123,16 @@ The local directory that `bqms-run` will use to store the results of the run.<br
 The directory within the origin Github repository to contain the translated and validated .sql files<br>
 
 
-#### CONFIG
+#### CONFIG_BASE
+
+The path to the base config directyory which hosts the config.yaml file and the object name mapping file.<br>
+
+
+#### CONFIG_YAML 
 
 The path to the dwh-migration-tools config.yaml file.<br>
 
 
-#### MAPPING_CONFIG_FILE
+#### OBJECT MAPPING
 
-The path to any given object name mapping configuration files.<br>
-
-#### FAILURE_LOGS
-
-The target destination for the failure logs contructed during the validation process.<br>
-
+The path to the object name mapping configuration file.<br>
