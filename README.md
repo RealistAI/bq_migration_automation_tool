@@ -1,14 +1,13 @@
 # BigQuery Migration Automation Tool
+The BigQuery Migration Automation Tool is used with the BigQuery Migration Service to batch transpile all of the teradata SQLs to BigQuery SQLs and then validates those queries with Bigquery dry-run. Then the BigQuery SQLs are pushed to github as well as a transpilation logs table in BigQuery.
 
-The BigQuery Migration Automation Tool is used to batch transpile all of the Simba SQLs and push those transpiled SQLs to github.
 ## Architecture 
 
 ![bq-migration-tool-flow drawio (1)](https://github.com/RealistAI/bq_migration_automation_tool/assets/99982739/44e9167f-e987-4a25-ba95-fde4cc78ff41)
 
 ## Tools Used
-BQ Migration CLI - CLI tooling built by the BigQuery Migration Service team that allows you to interact with the BigQuery Migration Service.
-
-Makefile- A Makefile is used to run the python scripts, the pip installs and all the requirements needed to run the BigQuery Migration Automation Tool.
+* BQ Migration CLI - CLI tooling built by the BigQuery Migration Service team that allows you to interact with the BigQuery Migration Service.
+* Makefile- A Makefile is used to run the python scripts, the pip installs and all the requirements needed to run the BigQuery Migration Automation Tool.
 
 ## Required repositories 
 UC4 SQL Repo\
