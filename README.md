@@ -1,5 +1,5 @@
 # BigQuery Migration Automation Tool
-The BigQuery Migration Automation Tool is used with the BigQuery Migration Service to batch transpile all of the teradata SQLs to BigQuery SQLs and then validates those queries with Bigquery dry-run. Then the BigQuery SQLs are pushed to github as well as a transpilation logs table in BigQuery. <br>
+The BigQuery Migration Automation Tool is used with the BigQuery Migration Service to batch transpile all of the teradata SQLs to BigQuery SQLs and then validates those queries with Bigquery dry-run. Then the BigQuery SQLs are pushed to github as well as a transpilation logs table in BigQuery. <br><br>
 
 ## Architecture 
 
