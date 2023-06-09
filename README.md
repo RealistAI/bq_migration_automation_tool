@@ -17,11 +17,11 @@ Service tool. The tool uploads the verified SQL to this repository.
 Folder Structure:
 <pre>
 |-- Teradata SQLs
-    |--Sub Folders
+    |--radd_master_directory
         |-- my_sql.sql
         … 
 |-- BigQuery SQLs
-    |--Sub Folders
+    |--simba_directory
         |-- my_sql.sql
 </pre>
 
@@ -38,24 +38,26 @@ into the local file system, if the given Github repo exists already in our local
 do a git pull instead. <br><br>
 
 ## Dataset Mapping
-The Dataset Mapping parses through all the SQL's in the `/teradata_sql` to find their dataset and project, 
-and then maps them to their proper Bigquery dataset and project for the transpilation process. <br><br>
+The Dataset Mapping parses through the given SQL for each job, extracts the table names attached to each job, 
+and creates a mapping configuration file that maps those tables into the correct dataset for the associated business unit.
+<br><br>
 
 ## Transpilation
-The transpilation is completed using `bqms-run`. The script sets the environment variables required by 
+The transpilation is the process that takes the terdata SQL and transpiles it into BigQuery SQL.
+This process is completed using `bqms-run`. The script sets the environment variables required by 
 the BQMS tool and then run the `bqms-run` command to initilize the transpilation process. <br><br>
 
 ## Dry Run
-We then iterate through the files in the BQMS output submit a dry run query for each of them.
+We then iterate through the files in the BQMS output, we submit a dry run for every query for each specific job.
 If the query is successful the file will then be moved into the UC4_SQL_REPO in the bigquery_sql/ 
-directory.<br><br>
+directory. If the querys it will stay in the teradata_sql/ directory. <br><br>
 
 ## Transpilation Logs
-At the end of the Dry-run validation, whether a dry-run is successul for not, the query data is uploaded to the transpilation_logs table in BigQuery where it can be accessed to get accurate logs for the dry-run success or failure. If the Dry-run is successful it will have a status of `SUCCEEDED`, it will have the time the dry-run ran and the specific query that succeeded. If the dry-run fails it will have a status of `FAILED`, it will have the time the dry-run ran, the specific query that failed and the error message explaining why the dry-run validation wasn't successful. <br><br>
+At the end of the Dry-run validation, whether a dry-run is successul for not, the query data is uploaded to the transpilation_logs table in BigQuery where it can be accessed to get accurate logs for the dry-runs success' or failures. If the Dry-run is successful it will have a status of `SUCCEEDED`, it will have the time the dry-run ran and the specific query that succeeded. If the dry-run fails it will have a status of `FAILED`, it will have the time the dry-run ran, the specific query that failed and the error message explaining why the dry-run validation wasn't successful. <br><br>
 
 ## Github Integration
-Upon completion of the validaiton process, the script will create a new branch in the origin repository, 
-and push the updated UC4 SQL. <br><br>
+Upon completion of the validation process, the script will create a new branch in the repository, 
+and push the new branch with its changes to the repository stored in github. <br><br>
 
 ## Usage
 In order to utilize this tool, you first need to clone the project into the directory of your choice 
