@@ -43,26 +43,26 @@ and then maps them to their proper Bigquery dataset and project for the transpil
 
 ## Transpilation
 The transpilation is completed using `bqms-run`. The script sets the environment variables required by 
-the BQMS tool and then run the `bqms-run` command to initilize the transpilation process. <br>
+the BQMS tool and then run the `bqms-run` command to initilize the transpilation process. <br><br>
 
 ## Dry Run
 We then iterate through the files in the BQMS output submit a dry run query for each of them.
 If the query is successful the file will then be moved into the UC4_SQL_REPO in the bigquery_sql/ 
-directory.<br>
+directory.<br><br>
 
 ## Transpilation Logs
-At the end of the Dry-run validation, whether a dry-run is successul for not, the query data is uploaded to the transpilation_logs table in BigQuery where it can be accessed to get accurate logs for the dry-run success or failure. If the Dry-run is successful it will have a status of `SUCCEEDED`, it will have the time the dry-run ran and the specific query that succeeded. If the dry-run fails it will have a status of `FAILED`, it will have the time the dry-run ran, the specific query that failed and the error message explaining why the dry-run validation wasn't successful. <br>
+At the end of the Dry-run validation, whether a dry-run is successul for not, the query data is uploaded to the transpilation_logs table in BigQuery where it can be accessed to get accurate logs for the dry-run success or failure. If the Dry-run is successful it will have a status of `SUCCEEDED`, it will have the time the dry-run ran and the specific query that succeeded. If the dry-run fails it will have a status of `FAILED`, it will have the time the dry-run ran, the specific query that failed and the error message explaining why the dry-run validation wasn't successful. <br><br>
 
 ## Github Integration
 Upon completion of the validaiton process, the script will create a new branch in the origin repository, 
-and push the updated UC4 SQL. <br>
+and push the updated UC4 SQL. <br><br>
 
 ## Usage
 In order to utilize this tool, you first need to clone the project into the directory of your choice 
 `git clone https://github.com/RealistAI/bq_migration_automation_tool.git`, navigate into the newly cloned 
 directory `cd bq_migration_automation_tool`, and alter the config.py to your own specification. Create 
 a Pip virtual environment using `pipenv shell` and install the required libraries `pipenv install`, 
-and run the Makefile `make run`. <br>
+and run the Makefile `make run`. <br><br>
 
 ## Configuration Options
 
