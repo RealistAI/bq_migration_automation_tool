@@ -7,7 +7,7 @@ The BigQuery Migration Automation Tool is used with the BigQuery Migration Servi
 
 ## Tools Used
 * BQ Migration CLI - CLI tooling built by the BigQuery Migration Service team that allows you to interact with the BigQuery Migration Service.
-* Makefile- A Makefile is used to run the python scripts, the pip installs and all the requirements needed to run the BigQuery Migration Automation Tool. <br>
+* Makefile- A Makefile is used to run the python scripts, the pip installs and all the requirements needed to run the BigQuery Migration Automation Tool. <br><br>
 
 ## Required repositories 
 UC4 SQL Repo\
