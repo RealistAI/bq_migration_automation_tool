@@ -30,16 +30,16 @@ The BigQuery SQLs folder contains all of the converted BigQuery SQLs for the UC4
 
 DWH Migration Tools Repo\
 This is the Github repository that contains the dwh-migration-tools that is required 
-for the transpilation of the Teradata SQL. <br>
+for the transpilation of the Teradata SQL. <br><br>
 
 ## Setup 
 The first part of the Makefile will run the setup.py. This script will clone the required repos 
 into the local file system, if the given Github repo exists already in our local file system, we will 
-do a git pull instead. <br>
+do a git pull instead. <br><br>
 
 ## Dataset Mapping
 The Dataset Mapping parses through all the SQL's in the `/teradata_sql` to find their dataset and project, 
-and then maps them to their proper Bigquery dataset and project for the transpilation process. <br>
+and then maps them to their proper Bigquery dataset and project for the transpilation process. <br><br>
 
 ## Transpilation
 The transpilation is completed using `bqms-run`. The script sets the environment variables required by 
