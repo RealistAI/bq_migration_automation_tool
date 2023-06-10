@@ -7,8 +7,8 @@ from google.cloud import bigquery
 import config
 import transpilation_logs as tl
 
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+logger.setLevel(config.LOGGING_LEVEL)
 
 
 def submit_query(query: str,
@@ -21,13 +21,10 @@ def submit_query(query: str,
     """
     client = bigquery.Client()
     job_config = bigquery.QueryJobConfig(dry_run=dry_run)
-    try:
-        logger.info(f"Submitting query to BigQuery:\n{query}\n")
-        query_results = client.query(query=query,
-                                     job_config=job_config).result()
-        return query_results
-    except Exception as error:
-        return error
+    logger.info(f"Submitting query to BigQuery:\n{query}\n")
+    query_results = client.query(query=query,
+                                 job_config=job_config).result()
+    return query_results
 
 
 def submit_query_for_validation(query: str,

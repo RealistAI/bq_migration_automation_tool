@@ -1,7 +1,33 @@
 from pathlib import Path
 import os
+import logging
 
+##############################################################################
+# Common Config                                                              #
+#############################################################################
+LOGGING_LEVEL = logging.INFO
+# The CSV File containing a list of UC4 Jobs
+UC4_CSV_FILE = Path(Path.cwd(), "uc4_jobs.csv")
 
+# The GCP Project where the metadata will be stored
+METADATA_PROJECT = 'michael-gilbert-dev'
+METADATA_DATASET = 'uc4_conversion_metadata'
+
+# The UC4 XML to JSON conversion stores the JSON in a BigQuery table. 
+# This is its name
+UC4_JSON_TABLE = f"{METADATA_PROJECT}.{METADATA_DATASET}.uc4_json"
+
+##############################################################################
+# Generate Teradata to BigQuery Mapping Config                               #
+#############################################################################
+
+# The table that stores the Teradata to BigQuery Mapping
+TD_TO_BQ_MAPPING_TABLE = \
+        f"{METADATA_PROJECT}.{METADATA_DATASET}.teradata_to_bigquery_mapping"
+
+# A CSV file containing the mapping between business units and datasets
+BUSINESS_UNIT_DATASET_MAP_CSV_FILE = Path(Path.cwd(), 
+                                          'business_unit_dataset_map.csv')
 # Repo containing the dwh-migration-tooling
 DWH_MIGRATION_TOOL_REPO = {
         "path": "https://github.com/google/dwh-migration-tools.git",
@@ -42,7 +68,7 @@ CONFIG_YAML = Path(CONFIG_BASE, 'config.yaml')
 OBJECT_MAPPING = Path(CONFIG_BASE, "name_map.json")
 
 # Debug mode?
-DEBUG = True
+DEBUG = False
 
 DATASET = "UC4_Jobs"
 

@@ -6,7 +6,7 @@ from pathlib import Path
 import config
 from utils import gcp
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=config.LOGGING_LEVEL)
 logger = logging.getLogger(__name__)
 
 

@@ -1,16 +1,21 @@
 import os
 import config
-import setup
 import datetime
-from utils import utils
-from utils import git
 from pathlib import Path
 import re
-import logging
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
+def remove_non_alphanumeric(string):
+    """ Removes all characters that are not numbers or letters
+
+    Args:
+    string: The string you wish to remove non alphanumeric characters from.
+    """
+    alphanumeric_chars = []
+    for char in string:
+        if char.isalnum():
+            alphanumeric_chars.append(char)
+    return ''.join(alphanumeric_chars)
 
 def push_to_git(remote_repo,
                 commit_message) -> str:
@@ -22,13 +27,13 @@ def push_to_git(remote_repo,
     commit_message: The commit message that is being pushed to the GitHub Repository alone with the necessary changes.
     """
     current_datetime = str(datetime.datetime.now())
-    stripped_current_datetime = utils.remove_non_alphanumeric(string=current_datetime)
+    stripped_current_datetime = remove_non_alphanumeric(string=current_datetime)
     branch_name = f'bq_migration_tool_batch_{stripped_current_datetime}'
     base_path = config.BASE_PATH
 
     current_directory = os.getcwd()
     os.chdir(base_path)
-    repo_directory_name = git.get_path_from_git_repo(remote_repo['path'])
+    repo_directory_name = get_path_from_git_repo(remote_repo['path'])
 
     assert repo_directory_name is not None, \
         f"'{remote_repo['path']}' is not a valid git repo."
