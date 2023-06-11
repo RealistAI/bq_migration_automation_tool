@@ -10,67 +10,19 @@ and generate the mapping.
 
 We will store that mapping in BigQuery
 """
-from collections.abc import Iterable
 from typing import Dict, List
 
 from google.cloud import bigquery
 import config
 import logging
-import json
 import re
+import utils
 from pathlib import Path
 import csv
-import utils.git as git
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
 logger = logging.getLogger(__name__)
 
-def extract_sql_dependencies(sql_dependencies: list):
-    """
-    Recursively looks in the uc4 JSON for the `sql_dependencies` element, adds
-    them to a list and returns them
-
-    Args:
-    sql_dependencies: The list containing the nested dictionaries which contain all the
-                      sql_dependencies such as the sql_file_paths needed for transpilation and validation.
-    """
-    sql_paths = []
-    for dependencies in sql_dependencies:
-        if dependencies.get('sql_dependencies'):
-            sql_paths.extend(extract_sql_dependencies(dependencies['sql_dependencies']))
-        else:
-            sql_file_path = dependencies.get("sql_file_path")
-            sql_paths.append(sql_file_path)
-    return list(set(sql_paths))
-
-def get_uc4_json(client: bigquery.Client, uc4_job_name: str) -> Dict:
-    """
-    Runs a query to attain the json data located in the uc4_json table for a specific uc4_job.
-
-    Args:
-    project_id: the project_id used in conjunction with the dataset_id to access the table.
-    dataset_id: the dataset_id used in conjunction with the project_id to access the table.
-    uc4_job_name: the name of the uc4_job we want the json data from.
-    """
-
-    logger.debug(f"Getting JSON data for '{uc4_job_name}'") 
-    # get the json for this uc4 job from BigQuery
-    json_data_query = "SELECT json_data\n"\
-            f"FROM {config.UC4_JSON_TABLE}\n"\
-            f"WHERE job_id = '{uc4_job_name}'"
-    try:
-        results = submit_query(client=client, query=json_data_query)
-    except Exception as e:
-        logger.error(e)
-        return {}
-
-    # Convert the JSON to a Dict
-    for row in results:
-        json_data = row[0]
-        dependency_dict = json.loads(json_data)
-
-        # Return it 
-        return dependency_dict
 
 def get_created_tables_and_views(sql_path: Path) -> List[str]:
     """
@@ -162,14 +114,17 @@ def write_table_mapping_to_bigquery(client: bigquery.Client, table_map: Dict):
     values_list = []
     for key, value in table_map.items():
         logger.debug(f" - Mapping '{key}' to '{value}'")
-        values_list.append(f"('{key}', '{value}')")
+        # The transpiler will always convert the table and dataset names 
+        # to lowercase. We must do the same in our mapping to ensure the 
+        # transpiler recognizes the table names
+        values_list.append(f"('{key.lower()}', '{value.lower()}')")
 
     query.append(f"INSERT INTO {config.TD_TO_BQ_MAPPING_TABLE} ("\
             "teradata_table, bigquery_table) \n" \
             f"VALUES{','.join(values_list)}")
 
     
-    submit_query(client=client, query=';\n'.join(query))
+    utils.submit_query(client=client, query=';\n'.join(query))
     logger.info("  Successfully wrote mappings to "\
             f"{config.TD_TO_BQ_MAPPING_TABLE}")
         
@@ -211,15 +166,6 @@ def map_table_references(client:bigquery.Client, table_references: List[str],
     write_table_mapping_to_bigquery(client=client, table_map=table_map)
 
 
-def submit_query(client: bigquery.Client, query:str) -> Iterable:
-    """
-    Submit a query to BigQuery
-    """
-    
-    logger.debug(f"Submitting query to BigQuery:\n{query}")
-    return client.query(query=query,
-                        job_config=bigquery.QueryJobConfig()
-                        ).result()
 
 def setup():
     """
@@ -227,8 +173,10 @@ def setup():
     created and available.
     """
 
+
     # Download the repo containing all of the SQLs
-    git.get_git_repo(repo=config.UC4_SQL_REPO,
+    utils.create_path_if_not_exists(config.BASE_PATH)
+    utils.get_git_repo(repo=config.UC4_SQL_REPO,
                      base_path=config.BASE_PATH)
     # Make sure the UC4 Config file exists
     assert config.UC4_CSV_FILE.is_file(), "The uc4_jobs.csv file is expected "\
@@ -252,7 +200,7 @@ def setup():
             ")"
 
 
-    submit_query(client=client, query=query)
+    utils.submit_query(client=client, query=query)
 
     return client
 
@@ -286,7 +234,7 @@ def main():
             continue
         logger.info(f"Generating mapping for tables owned by '{uc4_job}'")
 
-        uc4_json = get_uc4_json(client=bigquery_client, uc4_job_name=uc4_job)
+        uc4_json = utils.get_uc4_json(client=bigquery_client, uc4_job_name=uc4_job)
         logger.debug(f"   JSON:{uc4_json}")
         
         business_unit = uc4_json.get('business_unit')
@@ -299,7 +247,7 @@ def main():
                 f" {uc4_job} does not contain a 'sql_dependencies' element"
 
         # Extract the SQL dependencies from the JSON
-        sql_dependencies = extract_sql_dependencies(uc4_json['sql_dependencies'])
+        sql_dependencies = utils.extract_sql_dependencies(uc4_json['sql_dependencies'])
 
         # Get all of the table names from the DDL statements
         table_references = []

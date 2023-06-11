@@ -9,7 +9,7 @@ def setup():
     """
     Download the required repos and set the environment variables
     """
-    utils.create_path_if_not_exists(config.BASE_PATH)
+
 
     git.get_git_repo(repo=config.DWH_MIGRATION_TOOL_REPO,
                      base_path=config.BASE_PATH)

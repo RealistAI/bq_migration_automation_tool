@@ -1,9 +1,24 @@
-import os
+from collections.abc import Iterable
+
+from typing import Dict
 import config
 import datetime
 from pathlib import Path
+import os
 import re
+import json
 
+from google.cloud import bigquery
+
+def create_path_if_not_exists(path) -> None:
+    """
+    Create the file path if it does not exist
+
+    Args:
+    path: the file path we are creating if it doesn't exist.
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 def remove_non_alphanumeric(string):
     """ Removes all characters that are not numbers or letters
@@ -93,3 +108,57 @@ def get_git_repo(repo: dict,
         os.system(f"git checkout {repo['branch']}")
 
     os.chdir(current_dir)
+
+
+def extract_sql_dependencies(sql_dependencies: list):
+    """
+    Recursively looks in the uc4 JSON for the `sql_dependencies` element, adds
+    them to a list and returns them
+
+    Args:
+    sql_dependencies: The list containing the nested dictionaries which contain all the
+                      sql_dependencies such as the sql_file_paths needed for transpilation and validation.
+    """
+    sql_paths = []
+    for dependencies in sql_dependencies:
+        if dependencies.get('sql_dependencies'):
+            sql_paths.extend(extract_sql_dependencies(dependencies['sql_dependencies']))
+        else:
+            sql_file_path = dependencies.get("sql_file_path")
+            sql_paths.append(sql_file_path)
+    return list(set(sql_paths))
+
+def get_uc4_json(client: bigquery.Client, uc4_job_name: str) -> Dict:
+    """
+    Runs a query to attain the json data located in the uc4_json table for a specific uc4_job.
+
+    Args:
+    project_id: the project_id used in conjunction with the dataset_id to access the table.
+    dataset_id: the dataset_id used in conjunction with the project_id to access the table.
+    uc4_job_name: the name of the uc4_job we want the json data from.
+    """
+
+    # get the json for this uc4 job from BigQuery
+    json_data_query = "SELECT json_data\n"\
+            f"FROM {config.UC4_JSON_TABLE}\n"\
+            f"WHERE job_id = '{uc4_job_name}'"
+    
+    results = submit_query(client=client, query=json_data_query)
+
+    # Convert the JSON to a Dict
+    for row in results:
+        json_data = row[0]
+        dependency_dict = json.loads(json_data)
+
+        # Return it 
+        return dependency_dict
+
+
+def submit_query(client: bigquery.Client, query:str) -> Iterable:
+    """
+    Submit a query to BigQuery
+    """
+    
+    return client.query(query=query,
+                        job_config=bigquery.QueryJobConfig()
+                        ).result()
