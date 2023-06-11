@@ -1,6 +1,6 @@
 from collections.abc import Iterable
 
-from typing import Dict
+from typing import Dict, Tuple
 import config
 import datetime
 from pathlib import Path
@@ -9,6 +9,7 @@ import re
 import json
 
 from google.cloud import bigquery
+from google.api_core.exceptions import BadRequest
 
 def create_path_if_not_exists(path) -> None:
     """
@@ -162,3 +163,20 @@ def submit_query(client: bigquery.Client, query:str) -> Iterable:
     return client.query(query=query,
                         job_config=bigquery.QueryJobConfig()
                         ).result()
+
+def submit_dry_run(client: bigquery.Client, query: str) -> Tuple[str, str]:
+    """
+    Submit a dry run to BigQuery. Return 'SUCEEDED' or 'FAILED' and any
+    messages it returns
+    """
+
+    job_config = bigquery.QueryJobConfig(dry_run=True,
+                                         use_query_cache=False)
+    try:
+        client.query(query, job_config=job_config)
+    except BadRequest as e:
+        return 'FAILED', e.message
+
+    return 'SUCEEDED', ''
+
+

@@ -14,6 +14,12 @@ logging.basicConfig(level=config.LOGGING_LEVEL)
 logger = logging.getLogger(__name__)
 
 
+# We will add a uuid so we can handle runs in parallel
+root_bucket  = f"{config.BQMS_GCS_BUCKET}/{uuid.uuid4()}"
+BQMS_PREPROCESSED_PATH = f"{root_bucket}/preprocessed"
+BQMS_POSTPROCESSED_PATH = f"{root_bucket}/postprocessed"
+BQMS_TRANSLATED_PATH = f"{root_bucket}/translated"
+
 def setup():
     """
     This method ensures that all of the items required by this script are 
@@ -56,6 +62,9 @@ def setup():
     query = f"CREATE TABLE IF NOT EXISTS {config.TRANSLATION_LOG_TABLE} (\n"\
             "  uc4_job  STRING,\n"\
             "  status STRING,\n"\
+            "  message STRING,\n"\
+            "  dry_run_sql STRING,\n"\
+            "  referenced_sql_files STRING,\n"\
             "  timestamp TIMESTAMP\n"\
             ")"
 
@@ -151,19 +160,89 @@ def submit_job_to_bqms():
     """
 
     os.environ['BQMS_PROJECT'] = config.BQMS_PROJECT
-    # We will add a uuid so we can handle runs in parallel
-    run_id = uuid.uuid4()
-    root_bucket = f"{config.BQMS_GCS_BUCKET}/{run_id}"
-    os.environ['BQMS_PREPROCESSED_PATH'] = f"{root_bucket}/preprocessed"
-    os.environ['BQMS_POSTPROCESSED_PATH'] = f"{root_bucket}/postprocessed"
-    os.environ['BQMS_TRANSLATED_PATH'] = f"{root_bucket}/postprocessed"
+    os.environ['BQMS_PREPROCESSED_PATH'] = BQMS_PREPROCESSED_PATH
+    os.environ['BQMS_POSTPROCESSED_PATH'] = BQMS_POSTPROCESSED_PATH
+    os.environ['BQMS_TRANSLATED_PATH'] = BQMS_TRANSLATED_PATH
     os.environ['BQMS_INPUT_PATH'] = str(config.BQMS_INPUT_FOLDER)
     os.environ['BQMS_CONFIG_PATH'] = str(config.BQMS_CONFIG_FILE)
     os.environ['BQMS_OBJECT_NAME_MAPPING_PATH'] = str(config.BQMS_OBJECT_MAPPING_FILE)
     os.system(f"python {Path(Path.cwd(), 'dwh-migration-tools/client/bqms_run/main.py')} --input {config.BQMS_INPUT_FOLDER} --output {config.BQMS_OUTPUT_FOLDER} --config {config.BQMS_CONFIG_FILE} -o {config.BQMS_OBJECT_MAPPING_FILE}")
 
     # Download all of the transpiled files to the output forder
-    os.system(f'gsutil -m -o "GSUtil:parallel_process_count=1" cp -r {root_bucket}/postprocessed {config.BQMS_OUTPUT_FOLDER}')
+    os.system(f'gsutil -m -o "GSUtil:parallel_process_count=1" cp -r {BQMS_TRANSLATED_PATH} {config.BQMS_OUTPUT_FOLDER}')
+
+
+def write_log_to_table(client:bigquery.Client, uc4_job: str, result:str, 
+                       message:str, dry_run_sql:str, referenced_sqls:str):
+    """
+    Log the results of the dry-run to the BigQuery log table.
+    """
+
+    # assuming we only need the first line of the 
+    query = f"INSERT INTO {config.TRANSLATION_LOG_TABLE} " \
+            "(uc4_job, status, message, dry_run_sql, referenced_sql_files, " \
+            "timestamp)\n" \
+            f"VALUES('{uc4_job}','{result}', \"\"\"{message}\"\"\", " \
+            f"\"\"\"{dry_run_sql}\"\"\", \"\"\"{referenced_sqls}\"\"\", " \
+            "CURRENT_TIMESTAMP());"
+
+    print(query)
+    utils.submit_query(client=client, query=query)
+
+def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
+                  uc4_sql_dependencies: dict):
+    """
+    We need to validate the SQLs that have been translated. It is important 
+    that we submit all of the SQLs for a given UC4 job at the same time as 
+    there may be cases where one SQL creates a table/view that is read by 
+    another.
+    
+    We are going to collect all of the SQL code for the UC4 job provided and 
+    submit it to BigQuery as a single statement.
+
+    We will then write the dry-run result to BigQuery
+    """
+
+    # Iterate through the UC4 Jobs and read the SQL files from the output 
+    # folder into a list
+    for uc4_job in uc4_jobs:
+        if uc4_job == "":
+            continue
+
+        sqls = []
+        for sql_ref in uc4_sql_dependencies[uc4_job]:
+            # Create a path to the output folder where the SQL should reside
+            sql_path = Path(config.BQMS_OUTPUT_FOLDER, 'translated', sql_ref)
+
+            logger.info(f"Collecting '{sql_path}' for dry-run")
+            assert sql_path.exists, f"SQL Path referenced by {uc4_job} " \
+                    "does not exist: {sql_path}"
+
+            with open(sql_path, 'r') as sql_file:
+                sqls.append(sql_file.read())
+
+        # Dry run the SQLs
+        query = '\n'.join(sqls)
+        result, message  = utils.submit_dry_run(client=client,
+                                                query=query)
+
+        if result == 'SUCCEEEDED':
+            logger.info(f"dry-run for {uc4_job} succeeded")
+        else:
+            logger.warning(f"dry-run for {uc4_job} failed.")
+
+        
+        sql_references = []
+        for ref in uc4_sql_dependencies[uc4_job]:
+            sql_references.append(str(ref))
+
+        write_log_to_table(client=client, uc4_job=uc4_job, result=result,
+                           message=message, dry_run_sql=query,
+                           referenced_sqls='\n'.join(sql_references))
+
+
+
+
 
 def main():
     """
@@ -215,7 +294,6 @@ def main():
               continue
             
             source_path = Path(config.SOURCE_SQL_PATH, sql)
-            sql_paths.append(source_path)
             logger.info(f"  Found sql dependency: {source_path}")
 
             # Make sure the path actually exists
@@ -228,6 +306,9 @@ def main():
             dest_path.parents[0].mkdir(parents=True, exist_ok=True)
             shutil.copy(source_path, dest_path.parents[0])
             logger.info(f"  Copied {source_path} to '{config.BQMS_INPUT_FOLDER}'") 
+
+            # We want to add the unchaged SQL path to the list
+            sql_paths.append(sql)
 
         uc4_sql_dependencies[uc4_job] = sql_paths
         logger.info("")
@@ -244,6 +325,8 @@ def main():
     submit_job_to_bqms()
 
     # Perform the dry-runs
+    validate_sqls(client=bigquery_client, uc4_jobs=uc4_jobs,
+                  uc4_sql_dependencies=uc4_sql_dependencies)
     
 
 if __name__ == "__main__":
