@@ -66,40 +66,11 @@ directory `cd bq_migration_automation_tool`, and alter the config.py to your own
 a Pip virtual environment using `pipenv shell` and then use the Makefile to install the requirements.txt by running `make install`, then you neeed to run `make mapping`, this will get the current Teradata to BigQuery object mapping. Finally you run the `make translate` command which will run the translation, validation and pushing the new changes to the github repository. <br><br>
 
 ## Configuration Options
+### Common Config
 
 #### UC4_CSV_FILE
 
 The CSV file containing a list of UC4 Jobs. <br>
-
-
-#### UC4_JSON_TABLE
-
-The UC4 XML to JSON conversion stores the JSON in a BigQuery table. <br>
-
-
-#### DWH_MIGRATION_TOOL_REPO
-
-The repository url and branch containing the dwh-migration-tools<br>
-
-
-#### UC4_SQL_REPO
-
-The repository url and branch containing the SQL's to transpile & validate<br>
-
-
-#### UC4_SQL_REPO_NAME
-
-The name of the repository containing the SQL's to transpile & validate<br>
-
-
-#### BASE_PATH
-
-The base path for which the dataset mapping grabs the SQLs that is parses through and adjusts to work for BigQuery<br>
-
-
-#### BQMS_PROJECT
-
-The name of the Google Cloud Platform project that will perform the bulk transpilation & validation<br>
 
 
 #### METADATA_PROJECT
@@ -112,30 +83,26 @@ The GCP Project where the metadata will be stored.<br>
 The GCP Dataset where the metadata will be stored.<br>
 
 
-#### BQMS_GCS_BUCKET
+#### UC4_JSON_TABLE
 
-A Google Cloud Storage bucket that will be used by `bqms-run` as a staging area for the translation process<br>
-
-
-#### SOURCE_SQL_PATH
-The directory in your Github repository containing .sql files for translation and validation<br>
+The UC4 XML to JSON conversion stores the JSON in a BigQuery table. <br>
 
 
-#### TRANSLATED_BUCKET
+#### UC4_SQL_REPO_NAME
 
-A Google Cloud Storage bucket that will be used by `bqms-run` to store translated files before dumping 
-them back into the local file system.<br>
-
-
-#### SQL_TO_VALIDATE
-
-The local directory that `bqms-run` will use to store the results of the run.<br>
+The name of the repository containing the SQL's to transpile & validate<br>
 
 
-#### TARGET_SQL_PATH
+#### UC4_SQL_REPO
 
-The directory within the origin Github repository to contain the translated and validated .sql files.<br>
+The repository url and branch containing the SQL's to transpile & validate<br>
 
+
+#### BASE_PATH
+
+The base path for which the dataset mapping grabs the SQLs that is parses through and adjusts to work for BigQuery<br>
+
+### Generate Teradata to Bigquery Mapping Config
 
 #### TD_TO_BQ_MAPPING_TABLE
 
@@ -146,10 +113,21 @@ the table that stores the Teradata to BigQuery Mapping
 
 a CSV file containing the mapping between business units and datasets.<br>
 
+### Translate SQL Config
 
 #### TRANSLATION_LOG_TABLE
 
 This is where the translate SQL will store the dry-run logs.<br>
+
+
+#### BQMS_PROJECT
+
+The name of the Google Cloud Platform project that will perform the bulk transpilation & validation<br>
+
+
+#### BQMS_GCS_BUCKET
+
+A Google Cloud Storage bucket that will be used by `bqms-run` as a staging area for the translation process<br>
 
 
 #### BQMS_DEFAULT_DATABASE
@@ -185,3 +163,18 @@ The path to the dwh-migration-tools config.yaml file.<br>
 #### BQMS_OBJECT_MAPPING_FILE
 
 The path to the object name mapping configuration file.<br>
+
+
+#### SOURCE_SQL_PATH
+The directory in your Github repository containing .sql files for translation and validation<br>
+
+
+#### TARGET_SQL_PATH
+
+The directory within the origin Github repository to contain the translated and validated .sql files.<br>
+
+
+
+
+
+
