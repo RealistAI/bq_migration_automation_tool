@@ -1,4 +1,9 @@
-run:
-	python setup.py
-	pip install ~/required_repos/dwh-migration-tools/client
-	python main.py
+install:
+	pip install -r requirements.txt
+
+translate:
+	pip install dwh-migration-tools/client
+	python translate_sql.py
+
+mapping:
+	python generate_td_to_bq_mapping.py

@@ -9,6 +9,7 @@ pytest = "*"
 google-cloud-storage = "*"
 pyyaml = "*"
 pandas = "*"
+config = "*"
 
 [dev-packages]
 
