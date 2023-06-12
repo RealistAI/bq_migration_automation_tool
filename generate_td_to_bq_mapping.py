@@ -39,7 +39,7 @@ def get_created_tables_and_views(sql_path: Path) -> List[str]:
         data = sql_file.read()
 
     table_references = []
-    # Find all the CREATE SET TABLE instasces
+    # Find all the CREATE SET TABLE instances
     matches = re.findall(
             r'(?:CREATE[\s\n]*SET[\s\n]*TABLE[\s\n]*)([a-zA-Z_$#\.]*)', data)
 
@@ -47,7 +47,7 @@ def get_created_tables_and_views(sql_path: Path) -> List[str]:
         logger.debug(f"   Found creation of table: {match}")
         table_references.append(match)
 
-    # Find all the CREATE MULTISET TABLE instasces
+    # Find all the CREATE MULTISET TABLE instances
     matches = re.findall(
             r'(?:CREATE[\s\n]*MULTISET[\s\n]*TABLE[\s\n]*)([a-zA-Z_$#\.]*)', data)
 
@@ -55,7 +55,7 @@ def get_created_tables_and_views(sql_path: Path) -> List[str]:
         logger.debug(f"   Found creation of table: {match}")
         table_references.append(match)
 
-    # Find all the CREATE VIEW instasces
+    # Find all the CREATE VIEW instances
     matches = re.findall(
             r'(?:CREATE[\s\n]*VIEW[\s\n]*)([a-zA-Z_$#\.]*)', data)
 
