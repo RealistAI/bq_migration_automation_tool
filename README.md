@@ -100,7 +100,7 @@ The repository url and branch containing the SQL's to transpile & validate<br>
 
 #### BASE_PATH
 
-The base path for which the dataset mapping grabs the SQLs that is parses through and adjusts to work for BigQuery<br>
+The base path for which the dataset mapping grabs the SQLs that is parses through and adjusts to work for BigQuery<br><br>
 
 ### Generate Teradata to Bigquery Mapping Config
 
@@ -111,7 +111,7 @@ the table that stores the Teradata to BigQuery Mapping
 
 #### BUSINESS_UNIT_DATASET_MAP_CSV_FILE
 
-a CSV file containing the mapping between business units and datasets.<br>
+a CSV file containing the mapping between business units and datasets.<br><br>
 
 ### Translate SQL Config
 
