@@ -298,7 +298,7 @@ def main():
 
             # Make sure the path actually exists
             assert source_path.exists(), \
-                    f"Unable to find SQL depencency '{source_path}'. File does not "\
+                    f"Unable to find SQL dependency '{source_path}'. File does not "\
                     "exist."
 
             # Copy the SQL to the input folder
