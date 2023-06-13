@@ -166,7 +166,7 @@ def submit_query(client: bigquery.Client, query:str) -> Iterable:
 
 def submit_dry_run(client: bigquery.Client, query: str) -> Tuple[str, str]:
     """
-    Submit a dry run to BigQuery. Return 'SUCEEDED' or 'FAILED' and any
+    Submit a dry run to BigQuery. Return 'SUCCEEDED' or 'FAILED' and any
     messages it returns
     """
 
@@ -177,6 +177,6 @@ def submit_dry_run(client: bigquery.Client, query: str) -> Tuple[str, str]:
     except BadRequest as e:
         return 'FAILED', e.message
 
-    return 'SUCEEDED', ''
+    return 'SUCCEEDED', ''
 
 

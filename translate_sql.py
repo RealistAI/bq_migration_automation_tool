@@ -29,6 +29,7 @@ def setup():
 
     # Make sure the BQMS Folder exists and is empty
     if os.path.exists(config.BQMS_FOLDER):
+        print("Removing BQMS folder")
         shutil.rmtree(config.BQMS_FOLDER)
 
     for path in [
@@ -186,7 +187,6 @@ def write_log_to_table(client:bigquery.Client, uc4_job: str, result:str,
             f"\"\"\"{dry_run_sql}\"\"\", \"\"\"{referenced_sqls}\"\"\", " \
             "CURRENT_TIMESTAMP());"
 
-    print(query)
     utils.submit_query(client=client, query=query)
 
 def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
@@ -226,7 +226,7 @@ def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
         result, message  = utils.submit_dry_run(client=client,
                                                 query=query)
 
-        if result == 'SUCCEEEDED':
+        if result == 'SUCCEEDED':
             logger.info(f"dry-run for {uc4_job} succeeded")
         else:
             logger.warning(f"dry-run for {uc4_job} failed.")
