@@ -47,7 +47,7 @@ and creates a mapping configuration file that maps those tables into the correct
 it also uploads the mapping to a BigQuery table called `teradata to bq mapping`.
 <br><br>
 
-## Tranlate SQL
+## Translate SQL
 The third part of the Makefile is the `make translate` command which runs the transpilation,
 validation and uploading to BigQuery. It also runs a portion of the  github integration as seen below.
 
