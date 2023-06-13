@@ -34,7 +34,7 @@ for the transpilation of the Teradata SQL. <br><br>
 
 ## Setup
 the service consists of 4 portions as indicated by the Makefile.
-The first part of the Makefile will install all the required dependencies for the BigQuery Migration service.
+The first part of the Makefile `make install`, will install all the required dependencies for the BigQuery Migration service.
 
 setup.py is run in each separate make command. the setup.py script will clone the required repos
 into the local file system. If the given Github repo exists already in our local file system, we will 
@@ -68,7 +68,7 @@ At the end of the Dry-run validation, whether a dry-run is successul for not, th
 ### Github Integration
 Upon completion of the validation process, the script will create a new branch in the repository, 
 and push the new branch with its changes to the repository stored in github.
-the last part of the Makefile will create a pull request for the most recent branch in the `UC4_SQL_REPO` repository.<br><br>
+the last part of the Makefile `make git` will create a pull request for the most recent branch in the `UC4_SQL_REPO` repository.<br><br>
 
 ## Usage
 In order to utilize this tool, you first need to clone the project into the directory of your choice 
