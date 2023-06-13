@@ -16,6 +16,8 @@ METADATA_DATASET = "uc4_conversion_metadata"
 # This is its name
 UC4_JSON_TABLE = f"{METADATA_PROJECT}.{METADATA_DATASET}.uc4_json"
 
+REPO_OWNER = "RealistAI"
+
 UC4_SQL_REPO_NAME = "UC4_SQL"
 
 # Repo containing the SQLS to be translated.
@@ -24,7 +26,13 @@ UC4_SQL_REPO = {
         "branch": "master"
         }
 
+BASE_REPO_BRANCH = "master"
+
 BASE_PATH = Path(Path.home(), "required_repos")
+
+# Github token needed to create a pull request when running create_PR.py
+TOKEN = "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"
+
 ##############################################################################
 # Generate Teradata to BigQuery Mapping Config                               #
 #############################################################################

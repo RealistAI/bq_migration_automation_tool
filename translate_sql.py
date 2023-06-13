@@ -244,7 +244,7 @@ def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
 
 
 
-def main():
+def main() -> str:
     """
     Given a uc4_jobs csv file,
     Get the SQL dependencies for the c4 
@@ -313,7 +313,6 @@ def main():
         uc4_sql_dependencies[uc4_job] = sql_paths
         logger.info("")
 
-        
     # Generate the object mapping based on the data in the 
     # TERADATA_TO_BIGQUERY_MAP table.
     generate_object_mapping(client=bigquery_client)
@@ -327,7 +326,10 @@ def main():
     # Perform the dry-runs
     validate_sqls(client=bigquery_client, uc4_jobs=uc4_jobs,
                   uc4_sql_dependencies=uc4_sql_dependencies)
-    
+
+    branch = utils.push_to_git(remote_repo=config.UC4_SQL_REPO,
+                               commit_message="commiting branch to the UC4 SQL repository")
+    return branch
 
 if __name__ == "__main__":
     main()
