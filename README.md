@@ -59,7 +59,7 @@ the BQMS tool and then runs the `bqms-run` command to initilize the transpilatio
 ### Dry Run
 We then iterate through the files in the `BQMS_OUTPUT_FOLDER/translated` folder.
 We submit a dry run for every query for each specific job.
-If the query is successful the file will then be moved into the UC4_SQL_REPO in the bigquery_sql/ 
+If the query is successful the file will then be moved into the `UC4_SQL_REPO` in the bigquery_sql/ 
 directory. If the query fails it will stay in the teradata_sql/ directory. <br><br>
 
 ### Transpilation Logs
