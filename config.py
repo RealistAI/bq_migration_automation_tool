@@ -32,7 +32,7 @@ BASE_PATH = Path(Path.home(), "required_repos")
 
 # Github token needed to create a pull request when running create_PR.py
 <<<<<<< HEAD
-TOKEN = "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"
+TOKEN = ""
 =======
 TOKEN = ""
 >>>>>>> 5a8468e8e5acc1745fa45225c5a56641734578cd
