@@ -23,8 +23,8 @@ repo_owner = config.REPO_OWNER
 repo_name = config.UC4_SQL_REPO_NAME
 base_branch = config.BASE_REPO_BRANCH
 head_branch = ts.main()
-title = "Test Pull Request"
-body = "Pull request for testing purposes"
+title = f"Pull Request for {head_branch}"
+body = f"Creating pull request so the newest changes may be implemented to the {repo_name} repository"
 github_token = config.TOKEN
 
 submit_pull_request(repo_owner, repo_name, base_branch, head_branch, title, body, github_token)
