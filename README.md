@@ -34,21 +34,22 @@ for the transpilation of the Teradata SQL. <br><br>
 
 ## Setup
 the service consists of 4 portions as indicated by the Makefile.
-The first part of the Makefile `make install` will install all the required dependencies for the BigQuery Migration service.
-the other parts of the Makefile run what we see below. setup.py is run in each separate make command. the setup.py script will clone the required repos
+The first part of the Makefile will install all the required dependencies for the BigQuery Migration service.
+
+setup.py is run in each separate make command. the setup.py script will clone the required repos
 into the local file system. If the given Github repo exists already in our local file system, we will 
 do a git pull instead. <br><br>
 
 ## Teradata to BigQuery Dataset Mapping
-The third part of the Makefile is the `make mapping` command, which runs the Teradata to BigQuery Dataset Mapping.
+The second part of the Makefile is the `make mapping` command, which runs the Teradata to BigQuery Dataset Mapping.
 The Teradata to BigQuery Dataset Mapping parses through the given SQL for each job, extracts the table names attached to each job, 
 and creates a mapping configuration file that maps those tables into the correct dataset for the associated business unit. 
 it also uploads the mapping to a BigQuery table called `teradata to bq mapping`.
 <br><br>
 
 ## Tranlate SQL
-The second part of the Makefile is the `make translate` command which runs the transpilation,
-validation and uploading to BigQuery. It also runs the github integration as seen below.
+The third part of the Makefile is the `make translate` command which runs the transpilation,
+validation and uploading to BigQuery. It also runs a portion of the  github integration as seen below.
 
 ### Transpilation
 The transpilation is the process that takes the teradata SQL and transpiles it into BigQuery SQL.
@@ -62,13 +63,12 @@ If the query is successful the file will then be moved into the UC4_SQL_REPO in 
 directory. If the query fails it will stay in the teradata_sql/ directory. <br><br>
 
 ### Transpilation Logs
-At the end of the Dry-run validation, whether a dry-run is successul for not, the query data is uploaded to the transpilation_logs table in BigQuery where it can be accessed to get accurate logs for the dry-runs success' or failures. If the Dry-run is successful it will have a status of `SUCCEEDED`, it will have the time the dry-run ran and the specific query that succeeded as well as any reference SQLs. If the dry-run fails it will have a status of `FAILED`, it will have the time the dry-run ran, the specific query that failed and the error message explaining why the dry-run validation wasn't successful as well as any reference SQLs. <br><br>
+At the end of the Dry-run validation, whether a dry-run is successul for not, the query data is uploaded to the transpilation_logs table in BigQuery where it can be accessed to get accurate logs for the dry-runs success' or failures. If the Dry-run is successful it will have a status of `SUCCEEDED`, it will have the time the dry-run ran and the specific query that succeeded as well as any other SQLs the job referenced. If the dry-run fails it will have a status of `FAILED`, it will have the time the dry-run ran, the specific query that failed and the error message explaining why the dry-run validation wasn't successful as well as any SQLs the job referenced.<br><br>
 
 ### Github Integration
 Upon completion of the validation process, the script will create a new branch in the repository, 
 and push the new branch with its changes to the repository stored in github.
-the last part of the Makefile is the `make git` command, 
-which will create a pull request for the most recent branch in the `UC4_SQL_REPO` repository.<br><br>
+the last part of the Makefile will create a pull request for the most recent branch in the `UC4_SQL_REPO` repository.<br><br>
 
 ## Usage
 In order to utilize this tool, you first need to clone the project into the directory of your choice 
@@ -133,7 +133,7 @@ The token needed to create a pull request when running the `create_pull_request.
 
 #### TD_TO_BQ_MAPPING_TABLE
 
-the table that stores the Teradata to BigQuery Mapping
+the table that stores the Teradata to BigQuery Mapping<br>
 
 
 #### BUSINESS_UNIT_DATASET_MAP_CSV_FILE
