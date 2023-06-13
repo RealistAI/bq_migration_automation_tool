@@ -31,11 +31,7 @@ BASE_REPO_BRANCH = "master"
 BASE_PATH = Path(Path.home(), "required_repos")
 
 # Github token needed to create a pull request when running create_PR.py
-<<<<<<< HEAD
 TOKEN = ""
-=======
-TOKEN = ""
->>>>>>> 5a8468e8e5acc1745fa45225c5a56641734578cd
 
 ##############################################################################
 # Generate Teradata to BigQuery Mapping Config                               #
