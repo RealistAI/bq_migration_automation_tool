@@ -3,7 +3,7 @@ The BigQuery Migration Automation Tool is used with the BigQuery Migration Servi
 
 ## Architecture 
 
-![bq-migration-tool-flow drawio (1)](bigquery_migration_automation_tool.drawio)
+![bq-migration-tool-flow drawio (1)](system_design.png)
 
 ## Tools Used
 * BQ Migration CLI - CLI tooling built by the BigQuery Migration Service team that allows you to interact with the BigQuery Migration Service.
