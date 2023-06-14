@@ -97,7 +97,7 @@ def split_table_reference(table_reference: str) -> Tuple[str, str]:
     split_reference = table_reference.split('.')
 
     assert len(split_reference) == 2, \
-            "Malformed table reference {table_reference}. Should be a string "\
+            f"Malformed table reference {table_reference}. Should be a string "\
             "like dataset.table"
 
     return split_reference[0], split_reference[1]
