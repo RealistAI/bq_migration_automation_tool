@@ -126,8 +126,10 @@ def extract_sql_dependencies(sql_dependencies: list):
             sql_paths.extend(extract_sql_dependencies(dependencies['sql_dependencies']))
         else:
             sql_file_path = dependencies.get("sql_file_path")
-            sql_paths.append(sql_file_path)
-    return list(set(sql_paths))
+            if sql_file_path != "" and sql_file_path not in sql_paths:
+                print(f"Found SQL file: {sql_file_path}")
+                sql_paths.append(sql_file_path)
+    return sql_paths
 
 def get_uc4_json(client: bigquery.Client, uc4_job_name: str) -> Dict:
     """
