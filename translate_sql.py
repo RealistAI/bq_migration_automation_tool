@@ -327,7 +327,9 @@ def main():
     # Perform the dry-runs
     validate_sqls(client=bigquery_client, uc4_jobs=uc4_jobs,
                   uc4_sql_dependencies=uc4_sql_dependencies)
-    
+
+    utils.push_to_git(remote_repo=config.UC4_SQL_REPO,
+                      commit_message=f"Pushing the newest changes to the {config.UC4_SQL_REPO_NAME} repository")
 
 if __name__ == "__main__":
     main()
