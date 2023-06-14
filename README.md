@@ -33,10 +33,10 @@ This is the Github repository that contains the dwh-migration-tools that is requ
 for the transpilation of the Teradata SQL. <br><br>
 
 ## Setup
-the service consists of 4 portions as indicated by the Makefile.
+the service consists of 4 parts as indicated by the Makefile.
 The first part of the Makefile `make install`, will install all the required dependencies for the BigQuery Migration service.
 
-setup.py is run in each separate make command. the setup.py script will clone the required repos
+the `setup()` is run in two parts of the makefile. the `setup()` script will clone the required repos
 into the local file system. If the given Github repo exists already in our local file system, we will 
 do a git pull instead. <br><br>
 
@@ -63,8 +63,11 @@ If the query is successful the file will then be moved into the `UC4_SQL_REPO` i
 directory. If the query fails it will stay in the teradata_sql/ directory. <br><br>
 
 ### Transpilation Logs
-At the end of the Dry-run validation, whether a dry-run is successul for not, the query data is uploaded to the transpilation_logs table in BigQuery where it can be accessed to get accurate logs for the dry-runs success' or failures. 
-If the Dry-run is successful it will have a status of `SUCCEEDED`, it will have the time the dry-run ran and the specific query that succeeded as well as any other SQLs the job referenced. 
+At the end of the Dry-run validation, whether a dry-run is successful for not, 
+the query data is uploaded to the transpilation_logs table in BigQuery,
+where it can be accessed to get accurate logs for the dry-runs success' or failures. 
+If the Dry-run is successful it will have a status of `SUCCEEDED`,
+it will have the time the dry-run ran and the specific query that succeeded as well as any other SQLs the job referenced. 
 If the dry-run fails it will have a status of `FAILED`, it will have the time the dry-run ran, 
 the specific query that failed and the error message explaining why the dry-run validation wasn't successful as well as any SQLs the job referenced.<br><br>
 
@@ -145,6 +148,7 @@ the table that stores the Teradata to BigQuery Mapping<br>
 #### BUSINESS_UNIT_DATASET_MAP_CSV_FILE
 
 a CSV file containing the mapping between business units and datasets.<br><br>
+
 
 ### Translate SQL Config
 
