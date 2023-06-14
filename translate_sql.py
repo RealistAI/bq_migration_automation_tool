@@ -324,9 +324,8 @@ def main() -> str:
     validate_sqls(client=bigquery_client, uc4_jobs=uc4_jobs,
                   uc4_sql_dependencies=uc4_sql_dependencies)
 
-    branch = utils.push_to_git(remote_repo=config.UC4_SQL_REPO,
-                               commit_message="commiting branch to the UC4 SQL repository")
-    return branch
+    utils.push_to_git(remote_repo=config.UC4_SQL_REPO,
+                      commit_message="commiting branch to the UC4 SQL repository")
 
 if __name__ == "__main__":
     main()
