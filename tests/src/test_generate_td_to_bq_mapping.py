@@ -4,6 +4,8 @@ from google.cloud import bigquery
 import generate_td_to_bq_mapping as gm
 import os
 from  pathlib import Path
+import utils
+from google.api_core.exceptions import NotFound, Forbidden, BadRequest, ServiceUnavailable, Conflict, TooManyRequests
 
 class TestObjectMapping:
 
@@ -18,31 +20,36 @@ class TestObjectMapping:
         with pytest.raises(AttributeError):
             gm.get_created_tables_and_views(sql_path="file.fake")
 
-    def test_write_table_mapping_to_bq_success(self, bq_client):
+    def test_write_table_mapping_to_bq_success(self,
+                                               bq_client,
+                                               create_and_delete_table):
         client = bq_client
         table_map = {"key1": "item1", "key2": "item2", "key3": "item3"}
-        table_mappings = gm.write_table_mapping_to_bigquery(client=client,
-                                                            table_map=table_map)
+        table_mappings = write_table_mapping_to_bigquery_test(client=client,
+                                                              table_map=table_map)
         print(table_mappings, type(table_mappings))
         assert table_mappings == None
 
-    def test_write_table_mapping_to_bq_fail_due_to_using_list(self, bq_client):
+    def test_write_table_mapping_to_bq_fail_due_to_using_list(self,
+                                                              bq_client):
         with pytest.raises(AttributeError):
             client = bq_client
             table_map = ["key1", "item1", "key2", "item2", "key3", "item3"]
-            gm.write_table_mapping_to_bigquery(client=client,
-                                               table_map=table_map)
+            write_table_mapping_to_bigquery_test(client=client,
+                                                 table_map=table_map)
 
-    def test_map_table_references_success(self, bq_client):
+    def test_map_table_references_success(self,
+                                          bq_client):
         client = bq_client
         business_unit = "CREDIT"
-        table_references = ["table1 item1", "table2 item2", "table3 item3", "table4 item4", "table5 item5"]
+        table_references = ["table1.item1", "table2.item2", "table3.item", "table4.item4", "table5.item5"]
         map_references = gm.map_table_references(client=client,
                                                  table_references=table_references,
                                                  business_unit=business_unit)
         assert map_references == None
 
-    def test_map_table_references_fail_due_to_using_dict(self, bq_client):
+    def test_map_table_references_fail_due_to_using_dict(self,
+                                                         bq_client):
         client = bq_client
         business_unit = "CREDIT"
         table_references = {"table1": "item1", "table2": "item2", "table3": "item3", "table4": "item4", "table5": "item5"}
@@ -51,21 +58,12 @@ class TestObjectMapping:
                                     table_references=table_references,
                                     business_unit=business_unit)
 
-
-    #def test_main_success(self):
-    #    pass
-
-    #def test_main_fail(self):
-    #    pass
-
 @pytest.fixture(scope="session")
 def setup():
     """
     This method ensures that all of the items required by this script are
     created and available.
     """
-
-
     # Download the repo containing all of the SQLs
     utils.create_path_if_not_exists(config.BASE_PATH)
     utils.get_git_repo(repo=config.UC4_SQL_REPO,
@@ -91,14 +89,33 @@ def setup():
             "  bigquery_table STRING"\
             ")"
 
-
     utils.submit_query(client=client, query=query)
 
     return client
+
+
 @pytest.fixture(scope="session")
 def bq_client():
     client = bigquery.Client()
     return client
+
+
+@pytest.fixture(scope="session")
+def create_and_delete_table():
+    client = bigquery.Client()
+
+    create_table_query = client.query("""
+            CREATE TABLE michael-gilbert-dev.UC4_Jobs.test_mapping_table(
+                teradata_table STRING,
+                bigquery_table STRING
+            );""")
+    results = create_table_query.result()
+
+    for row in results:
+        print(f"{row.url} : {row.view_count}")
+    yield
+    client.query("DROP TABLE michael-gilbert-dev.UC4_Jobs.test_mapping_table")
+
 
 @pytest.fixture(scope="session")
 def create_sql_file():
@@ -107,3 +124,31 @@ def create_sql_file():
               touch test_file.sql;
               echo "CREATE TABLE my_dataset.data_table" > test_file.sql;
               """)
+
+def write_table_mapping_to_bigquery_test(client,
+                                         table_map):
+    """
+    Parse the table map dictionary and write the mappings to BigQuery
+    """
+
+    print("Inserting the Teradata to BigQuery mappings into the test_mapping_table table")
+    query = []
+    source_table_list = list(table_map.keys())
+    parameters = ',\n'.join("'" + item + "'" for item in source_table_list)
+    query.append(
+            f"DELETE FROM  michael-gilbert-dev.UC4_Jobs.test_mapping_table\nWHERE "\
+            f"teradata_table in ({parameters})")
+
+    values_list = []
+    for key, value in table_map.items():
+        # The transpiler will always convert the table and dataset names 
+        # to lowercase. We must do the same in our mapping to ensure the 
+        # transpiler recognizes the table names
+        values_list.append(f"('{key.lower()}', '{value.lower()}')")
+
+    query.append(f"INSERT INTO  michael-gilbert-dev.UC4_Jobs.test_mapping_table ("\
+            "teradata_table, bigquery_table) \n" \
+            f"VALUES{','.join(values_list)}")
+
+    utils.submit_query(client=client, query=';\n'.join(query))
+    print("  Successfully wrote mappings to test_mapping_table")
