@@ -1,38 +1,62 @@
 import pytest
 import config
 from google.cloud import bigquery
+import generate_td_to_bq_mapping as gm
+import os
+from  pathlib import Path
 
 class TestObjectMapping:
 
-    def test_get_created_tables_and_views_success(self):
-        pass
+    def test_get_created_tables_and_views_success(self,
+                                                  create_sql_file):
+        file_path = "test_file.sql"
+        sql_path = Path(file_path)
+        get_tables_and_views = gm.get_created_tables_and_views(sql_path)
+        assert type(get_tables_and_views) == type(list())
 
-    def test_get_created_tables_and_views_fail(self):
-        pass
+    def test_get_created_tables_and_views_fail_due_to_invalid_path(self):
+        with pytest.raises(AttributeError):
+            gm.get_created_tables_and_views(sql_path="file.fake")
 
-    def get_business_unit_map_success(self):
-        pass
+    def test_write_table_mapping_to_bq_success(self, bq_client):
+        client = bq_client
+        table_map = {"key1": "item1", "key2": "item2", "key3": "item3"}
+        table_mappings = gm.write_table_mapping_to_bigquery(client=client,
+                                                            table_map=table_map)
+        print(table_mappings, type(table_mappings))
+        assert table_mappings == None
 
-    def get_business_unit_map_fail(self):
-        pass
+    def test_write_table_mapping_to_bq_fail_due_to_using_list(self, bq_client):
+        with pytest.raises(AttributeError):
+            client = bq_client
+            table_map = ["key1", "item1", "key2", "item2", "key3", "item3"]
+            gm.write_table_mapping_to_bigquery(client=client,
+                                               table_map=table_map)
 
-    def write_table_mapping_to_bq_success(self):
-        pass
+    def test_map_table_references_success(self, bq_client):
+        client = bq_client
+        business_unit = "CREDIT"
+        table_references = ["table1 item1", "table2 item2", "table3 item3", "table4 item4", "table5 item5"]
+        map_references = gm.map_table_references(client=client,
+                                                 table_references=table_references,
+                                                 business_unit=business_unit)
+        assert map_references == None
 
-    def write_table_mapping_to_bq_fail(self):
-        pass
+    def test_map_table_references_fail_due_to_using_dict(self, bq_client):
+        client = bq_client
+        business_unit = "CREDIT"
+        table_references = {"table1": "item1", "table2": "item2", "table3": "item3", "table4": "item4", "table5": "item5"}
+        with pytest.raises(AssertionError):
+            gm.map_table_references(client=client,
+                                    table_references=table_references,
+                                    business_unit=business_unit)
 
-    def test_map_table_references_success(self):
-        pass
 
-    def test_map_table_references_fail(self):
-        pass
+    #def test_main_success(self):
+    #    pass
 
-    def test_main_success(self):
-        pass
-
-    def test_main_fail(self):
-        pass
+    #def test_main_fail(self):
+    #    pass
 
 @pytest.fixture(scope="session")
 def setup():
@@ -71,3 +95,15 @@ def setup():
     utils.submit_query(client=client, query=query)
 
     return client
+@pytest.fixture(scope="session")
+def bq_client():
+    client = bigquery.Client()
+    return client
+
+@pytest.fixture(scope="session")
+def create_sql_file():
+    os.system("""
+              cd ~/git/bq_migration_automation_tool;
+              touch test_file.sql;
+              echo "CREATE TABLE my_dataset.data_table" > test_file.sql;
+              """)
