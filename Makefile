@@ -7,3 +7,6 @@ translate:
 
 mapping:
 	python generate_td_to_bq_mapping.py
+
+git:
+	python create_pull_request.py
