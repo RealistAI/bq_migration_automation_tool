@@ -239,7 +239,7 @@ def main():
             logger.info(f"The business unit for this UC4 Job is {business_unit}")
 
             assert uc4_json.get('sql_dependencies') is not None, "Malformed JSON." \
-                                                                 f" {uc4_job} does not contain a 'sql_dependencies' element"
+                 f" {uc4_job} does not contain a 'sql_dependencies' element"
 
             # Extract the SQL dependencies from the JSON
             sql_dependencies = utils.extract_sql_dependencies(uc4_json['sql_dependencies'])
