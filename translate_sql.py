@@ -240,6 +240,7 @@ def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
                            message=message, dry_run_sql=query,
                            referenced_sqls='\n'.join(sql_references))
 
+        os.system(f"cp {sql_path} {config.TARGET_SQL_PATH}")
 
 
 
