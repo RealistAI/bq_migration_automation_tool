@@ -56,7 +56,8 @@ class TestTranslateSQL:
 
 
     def test_write_logs_to_table_success(self,
-                                        setup):
+                                         setup,
+                                         delete_table):
         client = setup
         uc4_job = "UC4_JOB_1"
         result = "SUCEEDED"
@@ -90,7 +91,8 @@ def create_and_delete_file():
 
 
 @pytest.fixture(scope="session")
-def delete_table():
+def delete_table(setup):
+    client = setup
     yield
     client.query("DROP TABLE michael-gilbert-dev.UC4_Jobs.test_logs_table")
 
