@@ -149,12 +149,14 @@ def get_uc4_json(client: bigquery.Client, uc4_job_name: str) -> Dict:
     results = submit_query(client=client, query=json_data_query)
 
     # Convert the JSON to a Dict
+    list_of_dicts = []
     for row in results:
         json_data = row[0]
         dependency_dict = json.loads(json_data)
+        list_of_dicts.append(dependency_dict)
 
         # Return it 
-        return dependency_dict
+        return list_of_dicts
 
 
 def submit_query(client: bigquery.Client, query:str) -> Iterable:
