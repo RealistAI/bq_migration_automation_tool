@@ -178,9 +178,9 @@ def setup():
                      base_path=config.BASE_PATH)
     # Make sure the UC4 Config file exists
     assert config.UC4_CSV_FILE.is_file(), "The uc4_jobs.csv file is expected " \
-                                          "to be available here '{config.UC4_CSV_FILE}' but it does not" \
-                                          " exist. Please refer to the README.md for instructions on how to" \
-                                          " create it."
+        "to be available here '{config.UC4_CSV_FILE}' but it does not" \
+        " exist. Please refer to the README.md for instructions on how to" \
+        " create it."
 
     # Make sure the Business Unit Dataset Map file exists
     assert config.BUSINESS_UNIT_DATASET_MAP_CSV_FILE.is_file(), \
