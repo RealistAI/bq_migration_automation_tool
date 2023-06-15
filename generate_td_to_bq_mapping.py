@@ -175,7 +175,7 @@ def setup():
     # Download the repo containing the SQLs
     utils.create_path_if_not_exists(config.BASE_PATH)
     utils.get_git_repo(repo=config.UC4_SQL_REPO,
-                       base_path=config.BASE_PATH)
+                     base_path=config.BASE_PATH)
     # Make sure the UC4 Config file exists
     assert config.UC4_CSV_FILE.is_file(), "The uc4_jobs.csv file is expected " \
                                           "to be available here '{config.UC4_CSV_FILE}' but it does not" \
