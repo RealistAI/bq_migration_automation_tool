@@ -222,46 +222,44 @@ def main():
     bigquery_client = setup()
 
     with open(config.UC4_CSV_FILE, 'r') as uc4_csv_file:
-        data = uc4_csv_file.read()
+        data = csv.reader(uc4_csv_file, delimiter=',')
 
-    uc4_jobs = data.split('\n')
+        for row in data:
+            assert len(row) == 2, "Malformed row {row} in " \
+                f"{config.UC4_CSV_FILE}. The map is " \
+                "expected to have two elements seperated by commas. "
 
-    # Get the JSON representation for these jobs from BigQuery
-    for uc4_job_details in uc4_jobs:
-        if uc4_job_details == "":
-            continue
-        split_jobs = uc4_job_details.split(',')
-        uc4_job = split_jobs[0]
-        business_unit = split_jobs[1]
-        logger.info(f"Generating mapping for tables owned by '{uc4_job}'")
+            uc4_job = row[0]
+            business_unit = row[1]
+            logger.info(f"Generating mapping for tables owned by '{uc4_job}'")
 
-        uc4_json = utils.get_uc4_json(client=bigquery_client, uc4_job_name=uc4_job)
-        logger.debug(f"   JSON:{uc4_json}")
+            uc4_json = utils.get_uc4_json(client=bigquery_client, uc4_job_name=uc4_job)
+            logger.debug(f"   JSON:{uc4_json}")
 
-        logger.info(f"The business unit for this UC4 Job is {business_unit}")
+            logger.info(f"The business unit for this UC4 Job is {business_unit}")
 
-        assert uc4_json.get('sql_dependencies') is not None, "Malformed JSON." \
-                                                             f" {uc4_job} does not contain a 'sql_dependencies' element"
+            assert uc4_json.get('sql_dependencies') is not None, "Malformed JSON." \
+                                                                 f" {uc4_job} does not contain a 'sql_dependencies' element"
 
-        # Extract the SQL dependencies from the JSON
-        sql_dependencies = utils.extract_sql_dependencies(uc4_json['sql_dependencies'])
+            # Extract the SQL dependencies from the JSON
+            sql_dependencies = utils.extract_sql_dependencies(uc4_json['sql_dependencies'])
 
-        # Get the table names from the DDL statements
-        table_references = []
-        for i in sql_dependencies:
-            if i == "":
-                continue
+            # Get the table names from the DDL statements
+            table_references = []
+            for i in sql_dependencies:
+                if i == "":
+                    continue
 
-            sql_path = Path(config.SOURCE_SQL_PATH, i)
-            table_references.extend(get_created_tables_and_views(sql_path))
+                sql_path = Path(config.SOURCE_SQL_PATH, i)
+                table_references.extend(get_created_tables_and_views(sql_path))
 
-        map_table_references(client=bigquery_client,
-                             table_references=table_references,
-                             business_unit=business_unit)
+            map_table_references(client=bigquery_client,
+                                 table_references=table_references,
+                                 business_unit=business_unit)
 
-        logger.info("Successfully created mapping(s) for tables owned by " \
-                    f"'{uc4_job}'")
-        logger.info("")
+            logger.info("Successfully created mapping(s) for tables owned by " \
+                        f"'{uc4_job}'")
+            logger.info("")
 
 
 if __name__ == "__main__":
