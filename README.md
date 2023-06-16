@@ -49,7 +49,7 @@ It also uploads the mapping to a BigQuery table called `teradata to bq mapping`.
 
 ## Translate SQL
 The third part of the Makefile is the `make translate` command which runs the transpilation,
-validation and uploading to BigQuery. It also runs a portion of the  github integration as seen below.
+validation and uploads the transpilation logs to BigQuery. It also runs a portion of the github integration as seen below.
 
 ### Transpilation
 The transpilation is the process that takes the teradata SQL and transpiles it into BigQuery SQL.
