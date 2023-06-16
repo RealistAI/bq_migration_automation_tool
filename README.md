@@ -58,18 +58,19 @@ the BQMS tool and then runs the `bqms-run` command to initilize the transpilatio
 
 ### Dry Run
 We then iterate through the files in the `BQMS_OUTPUT_FOLDER/translated` folder.
-We submit a dry run for every query for each specific job.
-If the query is successful the file will then be moved into the `UC4_SQL_REPO` in the bigquery_sql/ 
-directory. If the query fails it will stay in the teradata_sql/ directory. <br><br>
+We submit a dry run for all the queries for each specific job.
+If the queries are successful the file will then be moved into the `UC4_SQL_REPO` in the bigquery_sql/ 
+directory. If the queries fails it will stay in the teradata_sql/ directory. <br><br>
 
 ### Transpilation Logs
 At the end of the Dry-run validation, whether a dry-run is successful for not, 
 the query data is uploaded to the transpilation_logs table in BigQuery,
 where it can be accessed to get accurate logs for the dry-runs success' or failures. 
 If the Dry-run is successful it will have a status of `SUCCEEDED`,
-it will have the time the dry-run ran and the specific query that succeeded as well as any other SQLs the job referenced. 
+it will have the time the dry-run ran and the specific queries that succeeded as well as any other SQLs the job referenced. 
 If the dry-run fails it will have a status of `FAILED`, it will have the time the dry-run ran, 
-the specific query that failed and the error message explaining why the dry-run validation wasn't successful as well as any SQLs the job referenced.<br><br>
+the specific queries that failed and the error message explaining why the dry-run validation wasn't successful,
+as well as any SQLs the job referenced.<br><br>
 
 ### Github Integration
 Upon completion of the validation process, the script will create a new branch in the repository, 
@@ -82,8 +83,8 @@ In order to utilize this tool, you first need to clone the project into the dire
 navigate into the newly cloned  directory `cd bq_migration_automation_tool`, and alter the config.py to your own specification. 
 Create a Pip virtual environment using `pipenv shell` and then use the Makefile to install the requirements.txt by running `make install`, 
 then you need to run `make mapping`, this will get the current Teradata to BigQuery object mapping. 
-Finally you run the `make translate` command which will run the translation, validation and pushing the new changes to the github repository. 
-Then you will run the optional `make git` if you desire to create a pull request for the most recent branch in the `UC4_SQL_REPO` repository.<br><br>
+Finally you run the `make translate` command which will run the translation, validation and will push the new changes to the github repository. 
+Then you will run the optional Makefile command `make git` if you desire to create a pull request for the most recent branch in the `UC4_SQL_REPO` repository.<br><br>
 
 ## Configuration Options
 ### Common Config
