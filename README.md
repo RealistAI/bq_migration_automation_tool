@@ -34,7 +34,7 @@ for the transpilation of the Teradata SQL. <br><br>
 
 ## Setup
 the service consists of 4 parts as indicated by the Makefile.
-The first part of the Makefile `make install`, will install all the required dependencies for the BigQuery Migration service.
+The first part of the Makefile `make install`, which will install all the required dependencies for the BigQuery Migration service.
 
 the `setup()` is run in two parts of the makefile. the `setup()` script will clone the required repos
 into the local file system. If the given Github repo exists already in our local file system, we will 
