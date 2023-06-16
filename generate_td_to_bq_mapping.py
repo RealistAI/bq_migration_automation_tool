@@ -65,7 +65,6 @@ def get_created_tables_and_views(sql_path: Path) -> List[str]:
 
     return table_references
 
-
 def get_business_unit_map() -> dict:
     """
     Read the business_unit_map.csv from disk and convert it to a dictionary
