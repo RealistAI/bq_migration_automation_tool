@@ -44,7 +44,7 @@ do a git pull instead. <br><br>
 The second part of the Makefile is the `make mapping` command, which runs the Teradata to BigQuery Dataset Mapping.
 The Teradata to BigQuery Dataset Mapping parses through the given SQL for each job, extracts the table names attached to each job, 
 and creates a mapping configuration file that maps those tables into the correct dataset for the associated business unit. 
-it also uploads the mapping to a BigQuery table called `teradata to bq mapping`.
+It also uploads the mapping to a BigQuery table called `teradata to bq mapping`.
 <br><br>
 
 ## Translate SQL
