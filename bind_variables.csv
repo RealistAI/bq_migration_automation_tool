@@ -1,4 +1,2 @@
- 
- ${my-dataset},td_dataset
- ${my-table}, td_table
-
+${my-dataset},td_dataset,
+${my-table},td_table,
