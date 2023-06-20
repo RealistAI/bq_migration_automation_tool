@@ -1,2 +1,3 @@
-${my-dataset},td_dataset,
-${my-table},td_table,
+${mydataset},td_dataset
+${mytable},td_table
+${runtime},CURRENT_TIMESTAMP()

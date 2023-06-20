@@ -182,3 +182,40 @@ def submit_dry_run(client: bigquery.Client, query: str) -> Tuple[str, str]:
     return 'SUCCEEDED', ''
 
 
+def replace_bind_variables(sql: str):
+    """
+    Given a string containing bind variables, read the mapping file
+    from disk and replace the bindings in the SQL with the correct mapped
+    values fram the mapping file.
+    """
+
+    assert type(sql) ==  type(str()), "the sql statement needs to be a string in order for this function to work as intended. Make a proper string value and then try again."
+
+    print("dirty SQL statement ", sql)
+    #search through the sql statement and pull out any bind variables with regex.
+    matched_bind_variables = re.findall(r"\$.*?}", sql)
+
+    # Read the mapping file
+    with open("bind_variables.csv", "r") as bind_file:
+        csv_data = csv.reader(bind_file, delimiter=",")
+
+        # Replace the bindings in the SQL string
+        for row in csv_data:
+            if row[0] in matched_bind_variables:
+                print("first value in row is ", row[0])
+                sql = sql.replace(row[0], row[1])
+                processed_variable = row[0]
+                matched_bind_variables.remove(processed_variable)
+
+    print("clean SQL statement is ", sql)
+
+    # Raise warnings for all bindings in the SQL that don't have a mapping in the file
+    print("bind variables that were not found in the bind_variables_mapping file: ", matched_bind_variables)
+
+    # Return the updated string
+    return sql
+
+sql_string = "SELECT * FROM ${myproject}.${mydataset}.${mytable} WHERE time = ${runtime}"
+replace_bind_variables(sql=sql_string)
+
+
