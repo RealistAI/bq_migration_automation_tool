@@ -24,7 +24,7 @@ logging.basicConfig(level=config.LOGGING_LEVEL)
 logger = logging.getLogger(__name__)
 
 
-def get_created_tables_and_views(sql_path: Path) -> List[str]:
+def get_created_tables_and_views(sql_path: Path) -> List[dict]:
     """
     Given a SQL file path, find all CREATE statements and get the name of the
     table or view that is being created
@@ -39,29 +39,32 @@ def get_created_tables_and_views(sql_path: Path) -> List[str]:
         data = sql_file.read()
 
     table_references = []
-    # Find all the CREATE SET TABLE instasces
+    # Find all the CREATE SET TABLE instances
     matches = re.findall(
         r'(?:CREATE[\s\n]*SET[\s\n]*TABLE[\s\n]*)([a-zA-Z_$#\.]*)', data)
 
     for match in matches:
+        mapping = {'table': match}
         logger.debug(f"   Found creation of table: {match}")
-        table_references.append(match)
+        table_references.append(mapping)
 
-    # Find all the CREATE MULTISET TABLE instasces
+    # Find all the CREATE MULTISET TABLE instances
     matches = re.findall(
         r'(?:CREATE[\s\n]*MULTISET[\s\n]*TABLE[\s\n]*)([a-zA-Z_$#\.]*)', data)
 
     for match in matches:
+        mapping = {'table': match}
         logger.debug(f"   Found creation of table: {match}")
-        table_references.append(match)
+        table_references.append(mapping)
 
-    # Find all the CREATE VIEW instasces
+    # Find all the CREATE VIEW instances
     matches = re.findall(
         r'(?:CREATE[\s\n]*VIEW[\s\n]*)([a-zA-Z_$#\.]*)', data)
 
     for match in matches:
+        mapping = {'view': match}
         logger.debug(f"   Found creation of view: {match}")
-        table_references.append(match)
+        table_references.append(mapping)
 
     return table_references
 
@@ -75,9 +78,9 @@ def get_business_unit_map() -> dict:
         data = csv.reader(csv_file, delimiter=',')
 
         for row in data:
-            assert len(row) == 2, "Malformed row {row} in " \
+            assert len(row) == 3, "Malformed row {row} in " \
                                   f"{config.BUSINESS_UNIT_DATASET_MAP_CSV_FILE}. The map is " \
-                                  "expected to have two elements seperated by commas. "
+                                  "expected to have two elements separated by commas. "
 
             # Set the map dictionary to have the key be the first element 
             # from the row, and the second be the value. For a row like 
@@ -100,7 +103,7 @@ def write_table_mapping_to_bigquery(client: bigquery.Client, table_map: Dict):
                  f"'{config.TD_TO_BQ_MAPPING_TABLE}' table")
     query = []
     source_table_list = list(table_map.keys())
-    # Delete the prevous records for this table
+    # Delete the previous records for this table
 
     # Create the list of tables that needs to be deleted in the format that 
     # BigQuery requires:
@@ -118,18 +121,20 @@ def write_table_mapping_to_bigquery(client: bigquery.Client, table_map: Dict):
         # The transpiler will always convert the table and dataset names 
         # to lowercase. We must do the same in our mapping to ensure the 
         # transpiler recognizes the table names
-        values_list.append(f"('{key.lower()}', '{value.lower()}')")
+        key = str(key).lower()  # .replace('\'', '').replace('{', '').replace('}', '')
+        value = str(value).lower()  # .replace('\'', '').replace('{', '').replace('}', '')
+        values_list.append(f"('{key}', '{value}')")
 
     query.append(f"INSERT INTO {config.TD_TO_BQ_MAPPING_TABLE} (" \
                  "teradata_table, bigquery_table) \n" \
                  f"VALUES{','.join(values_list)}")
-
+    print(';\n'.join(query))
     utils.submit_query(client=client, query=';\n'.join(query))
     logger.info("  Successfully wrote mappings to " \
                 f"{config.TD_TO_BQ_MAPPING_TABLE}")
 
 
-def map_table_references(client: bigquery.Client, table_references: List[str],
+def map_table_references(client: bigquery.Client, table_references: List[dict],
                          business_unit: str):
     """
     Given a list of table references and the business unit, create a map 
@@ -147,21 +152,25 @@ def map_table_references(client: bigquery.Client, table_references: List[str],
         " must add it before you can continue"
 
     table_map = {}
-    for tr in table_references:
-        split_tr = tr.split('.')
+    for reference in table_references:
+        table_id = reference.get('table', reference.get('view'))
+        split_tr = table_id.split('.')
         split_tr_length = len(split_tr)
         assert split_tr_length == 3 or split_tr_length == 2, "Malformed Table" \
-                                                             f" Reference. {tr} has {split_tr_length} elements. " \
-                                                             f"It should have either 2 or 3."
+                                                                 f" Reference. {reference} has {split_tr_length} elements. " \
+                                                                 f"It should have either 2 or 3."
 
         if len(split_tr) == 3:
             table = split_tr[2]
         else:
             table = split_tr[1]
 
-        logger.info(f"  Creating mapping: '{tr}' -> " \
+        logger.info(f"  Creating mapping: '{reference}' -> " \
                     f"'{mapped_dataset}.{table}'")
-        table_map[tr] = f"{mapped_dataset}.{table}"
+        table_type = reference.keys()
+        if table_type == 'view':
+            mapped_dataset = f'{mapped_dataset}_views'
+        table_map[table_id] = f"{mapped_dataset}.{table}"
 
     write_table_mapping_to_bigquery(client=client, table_map=table_map)
 
@@ -227,7 +236,7 @@ def main():
         for row in data:
             assert len(row) == 2, "Malformed row {row} in " \
                 f"{config.UC4_CSV_FILE}. The map is " \
-                "expected to have two elements seperated by commas. "
+                "expected to have two elements separated by commas. "
 
             uc4_job = row[0]
             business_unit = row[1]
