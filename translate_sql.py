@@ -338,5 +338,7 @@ def main():
     validate_sqls(client=bigquery_client, uc4_jobs=data,
                   uc4_sql_dependencies=uc4_sql_dependencies)
 
+    logger.info("translation completed")
+
 if __name__ == "__main__":
     main()
