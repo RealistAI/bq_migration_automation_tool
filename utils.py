@@ -6,6 +6,7 @@ import datetime
 from pathlib import Path
 import os
 import re
+import csv
 import json
 
 from google.cloud import bigquery

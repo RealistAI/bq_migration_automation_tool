@@ -118,7 +118,6 @@ def generate_object_mapping(client: bigquery.Client):
 
     results = utils.submit_query(client=client, query=query)
 
-            
     # For every row in the mapping table, add a name_map
     for result in results:
         teradata_table_ref = result.get('teradata_table')
@@ -192,12 +191,12 @@ def write_log_to_table(client:bigquery.Client, uc4_job: str, result:str,
 def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
                   uc4_sql_dependencies: dict):
     """
-    We need to validate the SQLs that have been translated. It is important 
-    that we submit all of the SQLs for a given UC4 job at the same time as 
-    there may be cases where one SQL creates a table/view that is read by 
+    We need to validate the SQLs that have been translated. It is important
+    that we submit all of the SQLs for a given UC4 job at the same time as
+    there may be cases where one SQL creates a table/view that is read by
     another.
-    
-    We are going to collect all of the SQL code for the UC4 job provided and 
+
+    We are going to collect all of the SQL code for the UC4 job provided and
     submit it to BigQuery as a single statement.
 
     We will then write the dry-run result to BigQuery
@@ -247,7 +246,7 @@ def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
 def main():
     """
     Given a uc4_jobs csv file,
-    Get the SQL dependencies for the c4 
+    Get the SQL dependencies for the uc4
     Copy them into the input folder
     Generate the Object Mapping
     Run the BQMS
@@ -314,8 +313,8 @@ def main():
                 mapped_data, unmatched_bindings = utils.replace_bind_variables(data)
                 sql_file.write(mapped_data)
 
-           # Warn the user about missing mappings
-           logger.warning(f"The following bind variables had no mapping: {unmatched_bindings}")
+            # Warn the user about missing mappings
+            logger.warning(f"The following bind variables had no mapping: {unmatched_bindings}")
 
             # We want to add the unchaged SQL path to the list
             sql_paths.append(sql)
