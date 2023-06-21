@@ -24,7 +24,7 @@ logging.basicConfig(level=config.LOGGING_LEVEL)
 logger = logging.getLogger(__name__)
 
 
-def get_created_tables_and_views(sql_path: Path) -> List[dict]:
+def get_created_tables_and_views(sql_path: Path) -> [{str: dict}]:
     """
     Given a SQL file path, find all CREATE statements and get the name of the
     table or view that is being created
@@ -44,27 +44,27 @@ def get_created_tables_and_views(sql_path: Path) -> List[dict]:
         r'(?:CREATE[\s\n]*SET[\s\n]*TABLE[\s\n]*)([a-zA-Z_$#\.]*)', data)
 
     for match in matches:
-        mapping = {'table': match}
+        table_mapping = {'table': match}
         logger.debug(f"   Found creation of table: {match}")
-        table_references.append(mapping)
+        table_references.append(table_mapping)
 
     # Find all the CREATE MULTISET TABLE instances
     matches = re.findall(
         r'(?:CREATE[\s\n]*MULTISET[\s\n]*TABLE[\s\n]*)([a-zA-Z_$#\.]*)', data)
 
     for match in matches:
-        mapping = {'table': match}
+        multi_set_table_mapping = {"table": match}
         logger.debug(f"   Found creation of table: {match}")
-        table_references.append(mapping)
+        table_references.append(multi_set_table_mapping)
 
     # Find all the CREATE VIEW instances
     matches = re.findall(
         r'(?:CREATE[\s\n]*VIEW[\s\n]*)([a-zA-Z_$#\.]*)', data)
 
     for match in matches:
-        mapping = {'view': match}
+        view_mapping = {'view': match}
         logger.debug(f"   Found creation of view: {match}")
-        table_references.append(mapping)
+        table_references.append(view_mapping)
 
     return table_references
 
@@ -86,10 +86,13 @@ def get_business_unit_map() -> dict:
             # from the row, and the second be the value. For a row like 
             # 'RISK,risk_dataset' the dict would have the following element:
             # {
-            #  "RISK": "risk_dataset"
+            #  "RISK": {
+            #      "table": "risk_dataset",
+            #      "view": "risk_dataset_views"
+            #      }
             # }
 
-            business_unit_map[row[0]] = row[1]
+            business_unit_map[row[0]] = {"table": row[1], "view": row[2]}
 
     return business_unit_map
 
@@ -121,8 +124,8 @@ def write_table_mapping_to_bigquery(client: bigquery.Client, table_map: Dict):
         # The transpiler will always convert the table and dataset names 
         # to lowercase. We must do the same in our mapping to ensure the 
         # transpiler recognizes the table names
-        key = str(key).lower()  # .replace('\'', '').replace('{', '').replace('}', '')
-        value = str(value).lower()  # .replace('\'', '').replace('{', '').replace('}', '')
+        key = str(key).lower()
+        value = str(value).lower()
         values_list.append(f"('{key}', '{value}')")
 
     query.append(f"INSERT INTO {config.TD_TO_BQ_MAPPING_TABLE} (" \
@@ -144,21 +147,23 @@ def map_table_references(client: bigquery.Client, table_references: List[dict],
     business_unit_map = get_business_unit_map()
     # Try to find the business_unit in the business_unit_map. Warn the user
     # if it isn't found
-    mapped_dataset = business_unit_map.get(business_unit)
+    datasets = business_unit_map.get(business_unit)
 
-    assert mapped_dataset is not None, \
+    assert datasets is not None, \
         f"The '{config.BUSINESS_UNIT_DATASET_MAP_CSV_FILE}' file does not " \
         f"contain a mapping for the '{business_unit}' business unit. You" \
         " must add it before you can continue"
 
     table_map = {}
     for reference in table_references:
-        table_id = reference.get('table', reference.get('view'))
+        table_type = list(reference.keys())[0]
+        mapped_dataset = datasets.get(table_type)
+        table_id = reference.get(table_type)
         split_tr = table_id.split('.')
         split_tr_length = len(split_tr)
         assert split_tr_length == 3 or split_tr_length == 2, "Malformed Table" \
-                                                                 f" Reference. {reference} has {split_tr_length} elements. " \
-                                                                 f"It should have either 2 or 3."
+                                                             f" Reference. {reference} has {split_tr_length} elements. " \
+                                                             f"It should have either 2 or 3."
 
         if len(split_tr) == 3:
             table = split_tr[2]
@@ -167,9 +172,7 @@ def map_table_references(client: bigquery.Client, table_references: List[dict],
 
         logger.info(f"  Creating mapping: '{reference}' -> " \
                     f"'{mapped_dataset}.{table}'")
-        table_type = reference.keys()
-        if table_type == 'view':
-            mapped_dataset = f'{mapped_dataset}_views'
+
         table_map[table_id] = f"{mapped_dataset}.{table}"
 
     write_table_mapping_to_bigquery(client=client, table_map=table_map)
@@ -184,12 +187,12 @@ def setup():
     # Download the repo containing the SQLs
     utils.create_path_if_not_exists(config.BASE_PATH)
     utils.get_git_repo(repo=config.UC4_SQL_REPO,
-                     base_path=config.BASE_PATH)
+                       base_path=config.BASE_PATH)
     # Make sure the UC4 Config file exists
     assert config.UC4_CSV_FILE.is_file(), "The uc4_jobs.csv file is expected " \
-        "to be available here '{config.UC4_CSV_FILE}' but it does not" \
-        " exist. Please refer to the README.md for instructions on how to" \
-        " create it."
+                                          "to be available here '{config.UC4_CSV_FILE}' but it does not" \
+                                          " exist. Please refer to the README.md for instructions on how to" \
+                                          " create it."
 
     # Make sure the Business Unit Dataset Map file exists
     assert config.BUSINESS_UNIT_DATASET_MAP_CSV_FILE.is_file(), \
@@ -235,8 +238,8 @@ def main():
 
         for row in data:
             assert len(row) == 2, "Malformed row {row} in " \
-                f"{config.UC4_CSV_FILE}. The map is " \
-                "expected to have two elements separated by commas. "
+                                  f"{config.UC4_CSV_FILE}. The map is " \
+                                  "expected to have two elements separated by commas. "
 
             uc4_job = row[0]
             business_unit = row[1]
@@ -248,7 +251,7 @@ def main():
             logger.info(f"The business unit for this UC4 Job is {business_unit}")
 
             assert uc4_json.get('sql_dependencies') is not None, "Malformed JSON." \
-                 f" {uc4_job} does not contain a 'sql_dependencies' element"
+                                                                 f" {uc4_job} does not contain a 'sql_dependencies' element"
 
             # Extract the SQL dependencies from the JSON
             sql_dependencies = utils.extract_sql_dependencies(uc4_json['sql_dependencies'])
