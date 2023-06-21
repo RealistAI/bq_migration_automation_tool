@@ -273,10 +273,10 @@ def main():
 
         # Collect the SQL dependencies and copy them to the BQMS_INPUT_PATH
         for row in data:
-            if row[0] == "":
+            uc4_job = row[0]
+            if uc4_job == "":
                 continue
 
-            uc4_job = row[0]
             sql_paths = []
             logger.info(f"Collecting SQLs referenced by {uc4_job}")
             uc4_json = utils.get_uc4_json(client=bigquery_client,
