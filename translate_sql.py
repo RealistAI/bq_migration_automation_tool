@@ -5,6 +5,7 @@ from typing import Tuple
 import uuid
 
 import config
+import csv
 import utils
 import json
 from pathlib import Path
@@ -257,9 +258,9 @@ def main():
     logger.info("============================================================")
     bigquery_client = setup()
     with open(config.UC4_CSV_FILE, 'r') as uc4_csv_file:
-        data = uc4_csv_file.read()
+        data = csv.reader(uc4_csv_file, delimiter=",")
 
-    uc4_jobs = data.split('\n')
+    #uc4_jobs = data.split('\n')
 
     # At the end of this process we want to have a dictionary of jobs and their
     # corresponding SQL references
@@ -270,57 +271,58 @@ def main():
     #   ],
     #   ...
 
-    uc4_sql_dependencies = {}
+        uc4_sql_dependencies = {}
 
-    # Collect the SQL dependencies and copy them to the BQMS_INPUT_PATH
-    for uc4_job in uc4_jobs:
-        if uc4_job == "":
-            continue
+        # Collect the SQL dependencies and copy them to the BQMS_INPUT_PATH
+        for row in data:
+            if row[0] == "":
+                continue
 
-        sql_paths = []
-        logger.info(f"Collecting SQLs referenced by {uc4_job}")
-        uc4_json = utils.get_uc4_json(client=bigquery_client,
-                                      uc4_job_name=uc4_job)
+            uc4_job = row[0]
+            sql_paths = []
+            logger.info(f"Collecting SQLs referenced by {uc4_job}")
+            uc4_json = utils.get_uc4_json(client=bigquery_client,
+                                          uc4_job_name=uc4_job)
 
-        assert uc4_json.get('sql_dependencies') is not None, "Malformed JSON." \
-                f" {uc4_job} does not contain a 'sql_dependencies' element"
+            assert uc4_json.get('sql_dependencies') is not None, "Malformed JSON." \
+                    f" {uc4_job} does not contain a 'sql_dependencies' element"
 
-        sql_dependencies = utils.extract_sql_dependencies(
-                uc4_json['sql_dependencies'])
+            sql_dependencies = utils.extract_sql_dependencies(
+                    uc4_json['sql_dependencies'])
 
-        for sql in sql_dependencies:
-            if sql == '':
-              continue
-            
-            source_path = Path(config.SOURCE_SQL_PATH, sql)
-            logger.info(f"  Found sql dependency: {source_path}")
+            for sql in sql_dependencies:
+                if sql == '':
+                  continue
 
-            # Make sure the path actually exists
-            assert source_path.exists(), \
-                    f"Unable to find SQL dependency '{source_path}'. File does not "\
-                    "exist."
+                source_path = Path(config.SOURCE_SQL_PATH, sql)
+                logger.info(f"  Found sql dependency: {source_path}")
 
-            # Copy the SQL to the input folder
-            dest_path = Path(config.BQMS_INPUT_FOLDER, sql)
-            dest_path.parents[0].mkdir(parents=True, exist_ok=True)
-            shutil.copy(source_path, dest_path.parents[0])
-            logger.info(f"  Copied {source_path} to '{config.BQMS_INPUT_FOLDER}'")
+                # Make sure the path actually exists
+                assert source_path.exists(), \
+                        f"Unable to find SQL dependency '{source_path}'. File does not "\
+                        "exist."
 
-            #The SQL file may have bindings in it. We need to replace them.
-            logger.info("  Replacing bindings in SQL File")
-            with open(dest_path, 'w+') as sql_file:
-                data = sql_file.read()
-                mapped_data, unmatched_bindings = utils.replace_bind_variables(data)
-                sql_file.write(mapped_data)
+                # Copy the SQL to the input folder
+                dest_path = Path(config.BQMS_INPUT_FOLDER, sql)
+                dest_path.parents[0].mkdir(parents=True, exist_ok=True)
+                shutil.copy(source_path, dest_path.parents[0])
+                logger.info(f"  Copied {source_path} to '{config.BQMS_INPUT_FOLDER}'")
 
-            # Warn the user about missing mappings
-            logger.warning(f"The following bind variables had no mapping: {unmatched_bindings}")
+                #The SQL file may have bindings in it. We need to replace them.
+                logger.info("  Replacing bindings in SQL File")
+                with open(dest_path, 'w+') as sql_file:
+                    data = sql_file.read()
+                    mapped_data, unmatched_bindings = utils.replace_bind_variables(data)
+                    sql_file.write(mapped_data)
 
-            # We want to add the unchaged SQL path to the list
-            sql_paths.append(sql)
+                # Warn the user about missing mappings
+                logger.warning(f"The following bind variables had no mapping: {unmatched_bindings}")
 
-        uc4_sql_dependencies[uc4_job] = sql_paths
-        logger.info("")
+                # We want to add the unchaged SQL path to the list
+                sql_paths.append(sql)
+
+            uc4_sql_dependencies[uc4_job] = sql_paths
+            logger.info("")
 
     # Generate the object mapping based on the data in the 
     # TERADATA_TO_BIGQUERY_MAP table.
@@ -333,9 +335,8 @@ def main():
     submit_job_to_bqms()
 
     # Perform the dry-runs
-    validate_sqls(client=bigquery_client, uc4_jobs=uc4_jobs,
+    validate_sqls(client=bigquery_client, uc4_jobs=data,
                   uc4_sql_dependencies=uc4_sql_dependencies)
-    
 
 if __name__ == "__main__":
     main()
