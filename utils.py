@@ -193,7 +193,6 @@ def replace_bind_variables(sql: str):
         "in order for this function to work as intended. Make a proper string "\
         "value and then try again."
 
-    print("dirty SQL statement ", sql)
     #search through the sql statement and pull out any bind variables with regex.
     matched_bind_variables = re.findall(r"\$.*?}", sql)
 
