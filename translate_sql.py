@@ -260,8 +260,6 @@ def main():
     with open(config.UC4_CSV_FILE, 'r') as uc4_csv_file:
         data = csv.reader(uc4_csv_file, delimiter=",")
 
-    #uc4_jobs = data.split('\n')
-
     # At the end of this process we want to have a dictionary of jobs and their
     # corresponding SQL references
     # {
