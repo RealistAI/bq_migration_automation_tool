@@ -216,7 +216,5 @@ def replace_bind_variables(sql: str):
     # Return the updated string
     return sql
 
-sql_string = "SELECT * FROM ${myproject}.${mydataset}.${mytable} WHERE time = ${runtime}"
-replace_bind_variables(sql=sql_string)
 
 
