@@ -131,6 +131,7 @@ def write_table_mapping_to_bigquery(client: bigquery.Client, table_map: Dict):
     query.append(f"INSERT INTO {config.TD_TO_BQ_MAPPING_TABLE} (" \
                  "teradata_table, bigquery_table) \n" \
                  f"VALUES{','.join(values_list)}")
+    print(query)
     utils.submit_query(client=client, query=';\n'.join(query))
     logger.info("  Successfully wrote mappings to " \
                 f"{config.TD_TO_BQ_MAPPING_TABLE}")
