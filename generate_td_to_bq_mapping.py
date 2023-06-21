@@ -37,6 +37,8 @@ def get_created_tables_and_views(sql_path: Path) -> List[str]:
                 f"{sql_path}")
     with open(sql_path, 'r') as sql_file:
         data = sql_file.read()
+    data, unmatched_bindings = utils.replace_bind_variables(data)
+    logger.warning(f"The following bind variables had no mapping: {unmatched_bindings}")
 
     table_references = []
     # Find all the CREATE SET TABLE instasces

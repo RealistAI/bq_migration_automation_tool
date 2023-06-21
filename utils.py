@@ -207,13 +207,7 @@ def replace_bind_variables(sql: str):
                 sql = sql.replace(row[0], row[1])
                 processed_variable = row[0]
                 matched_bind_variables.remove(processed_variable)
-
-
-    # Raise warnings for all bindings in the SQL that don't have a mapping in the file
-    print("bind variables that were not found in the bind_variables_mapping file: ", matched_bind_variables)
+        unmatched_bind_variables = matched_bind_variables
 
     # Return the updated string
-    return sql
-
-
-
+    return sql,unmatched_bind_variables

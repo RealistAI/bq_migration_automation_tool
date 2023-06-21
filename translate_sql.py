@@ -305,7 +305,17 @@ def main():
             dest_path = Path(config.BQMS_INPUT_FOLDER, sql)
             dest_path.parents[0].mkdir(parents=True, exist_ok=True)
             shutil.copy(source_path, dest_path.parents[0])
-            logger.info(f"  Copied {source_path} to '{config.BQMS_INPUT_FOLDER}'") 
+            logger.info(f"  Copied {source_path} to '{config.BQMS_INPUT_FOLDER}'")
+
+            #The SQL file may have bindings in it. We need to replace them.
+            logger.info("  Replacing bindings in SQL File")
+            with open(dest_path, 'w+') as sql_file:
+                data = sql_file.read()
+                mapped_data, unmatched_bindings = utils.replace_bind_variables(data)
+                sql_file.write(mapped_data)
+
+           # Warn the user about missing mappings
+           logger.warning(f"The following bind variables had no mapping: {unmatched_bindings}")
 
             # We want to add the unchaged SQL path to the list
             sql_paths.append(sql)
@@ -313,7 +323,6 @@ def main():
         uc4_sql_dependencies[uc4_job] = sql_paths
         logger.info("")
 
-        
     # Generate the object mapping based on the data in the 
     # TERADATA_TO_BIGQUERY_MAP table.
     generate_object_mapping(client=bigquery_client)
