@@ -40,7 +40,7 @@ def setup():
             config.BQMS_CONFIG_FOLDER
             ]:
         utils.create_path_if_not_exists(path)
-        
+
     # Download the repo containing all of the SQLs
     utils.create_path_if_not_exists(config.BASE_PATH)
     utils.get_git_repo(repo=config.UC4_SQL_REPO,
@@ -231,7 +231,6 @@ def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
         else:
             logger.warning(f"dry-run for {uc4_job} failed.")
 
-        
         sql_references = []
         for ref in uc4_sql_dependencies[uc4_job]:
             sql_references.append(str(ref))
@@ -239,9 +238,6 @@ def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
         write_log_to_table(client=client, uc4_job=uc4_job, result=result,
                            message=message, dry_run_sql=query,
                            referenced_sqls='\n'.join(sql_references))
-
-
-
 
 
 def main():
