@@ -309,9 +309,6 @@ def main():
                     mapped_data, unmatched_bindings = utils.replace_bind_variables(data)
                     sql_file.write(mapped_data)
 
-                # Warn the user about missing mappings
-                logger.warning(f"The following bind variables had no mapping: {unmatched_bindings}")
-
                 # We want to add the unchaged SQL path to the list
                 sql_paths.append(sql)
 
