@@ -8,9 +8,13 @@ import os
 import re
 import csv
 import json
+import logging
 
 from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
+
+logging.basicConfig(level=config.LOGGING_LEVEL)
+logger = logging.getLogger(__name__)
 
 def create_path_if_not_exists(path) -> None:
     """
@@ -198,7 +202,7 @@ def replace_bind_variables(sql: str):
     matched_bind_variables = re.findall(r"\$.*?}", sql)
 
     # Read the mapping file
-    with open("bind_variables.csv", "r") as bind_file:
+    with open(config.BIND_VARIABLE_CSV_FILE, "r") as bind_file:
         csv_data = csv.reader(bind_file, delimiter=",")
 
         # Replace the bindings in the SQL string
@@ -209,6 +213,8 @@ def replace_bind_variables(sql: str):
                 processed_variable = row[0]
                 matched_bind_variables.remove(processed_variable)
         unmatched_bind_variables = matched_bind_variables
+        if unmatched_bind_variables != []:
+            raise Exception(f"Here is a list of bindings we dont have mappings for: {unmatched_bind_variables}")
 
     # Return the updated string
     return sql,unmatched_bind_variables
