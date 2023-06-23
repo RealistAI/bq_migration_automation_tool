@@ -41,7 +41,7 @@ def get_created_tables_and_views(sql_path: Path) -> [{str: dict}]:
     table_references = []
     # Find all the CREATE SET TABLE instances
     matches = re.findall(
-        r'(?:CREATE[\s\n]*SET[\s\n]*TABLE[\s\n]*)([a-zA-Z_$#\.]*)', data)
+        r'(?:CREATE[\s\n]*SET[\s\n]*TABLE[\s\n]*)([^\s,]*)', data)
 
     for match in matches:
         table_mapping = {'table': match}
@@ -50,7 +50,7 @@ def get_created_tables_and_views(sql_path: Path) -> [{str: dict}]:
 
     # Find all the CREATE MULTISET TABLE instances
     matches = re.findall(
-        r'(?:CREATE[\s\n]*MULTISET[\s\n]*TABLE[\s\n]*)([a-zA-Z_$#\.]*)', data)
+        r'(?:CREATE[\s\n]*MULTISET[\s\n]*TABLE[\s\n]*)([^\s,]*)', data)
 
     for match in matches:
         multi_set_table_mapping = {"table": match}
@@ -59,7 +59,7 @@ def get_created_tables_and_views(sql_path: Path) -> [{str: dict}]:
 
     # Find all the CREATE VIEW instances
     matches = re.findall(
-        r'(?:CREATE[\s\n]*VIEW[\s\n]*)([a-zA-Z_$#\.]*)', data)
+        r'(?:CREATE[\s\n]*VIEW[\s\n]*)([^\s,]*)', data)
 
     for match in matches:
         view_mapping = {'view': match}
