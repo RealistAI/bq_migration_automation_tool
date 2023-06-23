@@ -6,10 +6,15 @@ import datetime
 from pathlib import Path
 import os
 import re
+import csv
 import json
+import logging
 
 from google.cloud import bigquery
 from google.api_core.exceptions import BadRequest
+
+logging.basicConfig(level=config.LOGGING_LEVEL)
+logger = logging.getLogger(__name__)
 
 def create_path_if_not_exists(path) -> None:
     """
@@ -127,7 +132,6 @@ def extract_sql_dependencies(sql_dependencies: list):
         else:
             sql_file_path = dependencies.get("sql_file_path")
             if sql_file_path != "" and sql_file_path not in sql_paths:
-                print(f"Found SQL file: {sql_file_path}")
                 sql_paths.append(sql_file_path)
     return sql_paths
 
@@ -182,3 +186,31 @@ def submit_dry_run(client: bigquery.Client, query: str) -> Tuple[str, str]:
     return 'SUCCEEDED', ''
 
 
+def replace_bind_variables(sql: str):
+    """
+    Given a string containing bind variables, read the mapping file
+    from disk and replace the bindings in the SQL with the correct mapped
+    values fram the mapping file.
+    """
+
+    assert type(sql) ==  type(str()), "the sql statement needs to be a string "\
+        "in order for this function to work as intended. Make a proper string "\
+        "value and then try again."
+
+    #search through the sql statement and pull out any bind variables with regex.
+    matched_bind_variables = re.findall(r"\$.*?}", sql)
+
+    # Read the mapping file
+    with open(config.BIND_VARIABLE_CSV_FILE, "r") as bind_file:
+        csv_data = csv.reader(bind_file, delimiter=",")
+
+        # Replace the bindings in the SQL string
+        for row in csv_data:
+            if row[0] in matched_bind_variables:
+                sql = sql.replace(row[0], row[1])
+                processed_variable = row[0]
+                matched_bind_variables.remove(processed_variable)
+        unmatched_bind_variables = matched_bind_variables
+
+    # Return the updated string
+    return sql,unmatched_bind_variables

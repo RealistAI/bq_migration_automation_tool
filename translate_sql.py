@@ -5,6 +5,7 @@ from typing import Tuple
 import uuid
 
 import config
+import csv
 import utils
 import json
 from pathlib import Path
@@ -39,7 +40,7 @@ def setup():
             config.BQMS_CONFIG_FOLDER
             ]:
         utils.create_path_if_not_exists(path)
-        
+
     # Download the repo containing all of the SQLs
     utils.create_path_if_not_exists(config.BASE_PATH)
     utils.get_git_repo(repo=config.UC4_SQL_REPO,
@@ -118,7 +119,6 @@ def generate_object_mapping(client: bigquery.Client):
 
     results = utils.submit_query(client=client, query=query)
 
-            
     # For every row in the mapping table, add a name_map
     for result in results:
         teradata_table_ref = result.get('teradata_table')
@@ -192,12 +192,12 @@ def write_log_to_table(client:bigquery.Client, uc4_job: str, result:str,
 def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
                   uc4_sql_dependencies: dict):
     """
-    We need to validate the SQLs that have been translated. It is important 
-    that we submit all of the SQLs for a given UC4 job at the same time as 
-    there may be cases where one SQL creates a table/view that is read by 
+    We need to validate the SQLs that have been translated. It is important
+    that we submit all of the SQLs for a given UC4 job at the same time as
+    there may be cases where one SQL creates a table/view that is read by
     another.
-    
-    We are going to collect all of the SQL code for the UC4 job provided and 
+
+    We are going to collect all of the SQL code for the UC4 job provided and
     submit it to BigQuery as a single statement.
 
     We will then write the dry-run result to BigQuery
@@ -231,7 +231,6 @@ def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
         else:
             logger.warning(f"dry-run for {uc4_job} failed.")
 
-        
         sql_references = []
         for ref in uc4_sql_dependencies[uc4_job]:
             sql_references.append(str(ref))
@@ -241,13 +240,10 @@ def validate_sqls(client: bigquery.Client, uc4_jobs: list[str],
                            referenced_sqls='\n'.join(sql_references))
 
 
-
-
-
 def main():
     """
     Given a uc4_jobs csv file,
-    Get the SQL dependencies for the c4 
+    Get the SQL dependencies for the uc4
     Copy them into the input folder
     Generate the Object Mapping
     Run the BQMS
@@ -258,9 +254,7 @@ def main():
     logger.info("============================================================")
     bigquery_client = setup()
     with open(config.UC4_CSV_FILE, 'r') as uc4_csv_file:
-        data = uc4_csv_file.read()
-
-    uc4_jobs = data.split('\n')
+        data = csv.reader(uc4_csv_file, delimiter=",")
 
     # At the end of this process we want to have a dictionary of jobs and their
     # corresponding SQL references
@@ -271,49 +265,56 @@ def main():
     #   ],
     #   ...
 
-    uc4_sql_dependencies = {}
+        uc4_sql_dependencies = {}
 
-    # Collect the SQL dependencies and copy them to the BQMS_INPUT_PATH
-    for uc4_job in uc4_jobs:
-        if uc4_job == "":
-            continue
+        # Collect the SQL dependencies and copy them to the BQMS_INPUT_PATH
+        for row in data:
+            uc4_job = row[0]
+            if uc4_job == "":
+                continue
 
-        sql_paths = []
-        logger.info(f"Collecting SQLs referenced by {uc4_job}")
-        uc4_json = utils.get_uc4_json(client=bigquery_client,
-                                      uc4_job_name=uc4_job)
+            sql_paths = []
+            logger.info(f"Collecting SQLs referenced by {uc4_job}")
+            uc4_json = utils.get_uc4_json(client=bigquery_client,
+                                          uc4_job_name=uc4_job)
 
-        assert uc4_json.get('sql_dependencies') is not None, "Malformed JSON." \
-                f" {uc4_job} does not contain a 'sql_dependencies' element"
+            assert uc4_json.get('sql_dependencies') is not None, "Malformed JSON." \
+                    f" {uc4_job} does not contain a 'sql_dependencies' element"
 
-        sql_dependencies = utils.extract_sql_dependencies(
-                uc4_json['sql_dependencies'])
+            sql_dependencies = utils.extract_sql_dependencies(
+                    uc4_json['sql_dependencies'])
 
-        for sql in sql_dependencies:
-            if sql == '':
-              continue
-            
-            source_path = Path(config.SOURCE_SQL_PATH, sql)
-            logger.info(f"  Found sql dependency: {source_path}")
+            for sql in sql_dependencies:
+                if sql == '':
+                  continue
 
-            # Make sure the path actually exists
-            assert source_path.exists(), \
-                    f"Unable to find SQL dependency '{source_path}'. File does not "\
-                    "exist."
+                source_path = Path(config.SOURCE_SQL_PATH, sql)
+                logger.info(f"  Found sql dependency: {source_path}")
 
-            # Copy the SQL to the input folder
-            dest_path = Path(config.BQMS_INPUT_FOLDER, sql)
-            dest_path.parents[0].mkdir(parents=True, exist_ok=True)
-            shutil.copy(source_path, dest_path.parents[0])
-            logger.info(f"  Copied {source_path} to '{config.BQMS_INPUT_FOLDER}'") 
+                # Make sure the path actually exists
+                assert source_path.exists(), \
+                        f"Unable to find SQL dependency '{source_path}'. File does not "\
+                        "exist."
 
-            # We want to add the unchaged SQL path to the list
-            sql_paths.append(sql)
+                # Copy the SQL to the input folder
+                dest_path = Path(config.BQMS_INPUT_FOLDER, sql)
+                dest_path.parents[0].mkdir(parents=True, exist_ok=True)
+                shutil.copy(source_path, dest_path.parents[0])
+                logger.info(f"  Copied {source_path} to '{config.BQMS_INPUT_FOLDER}'")
 
-        uc4_sql_dependencies[uc4_job] = sql_paths
-        logger.info("")
+                #The SQL file may have bindings in it. We need to replace them.
+                logger.info("  Replacing bindings in SQL File")
+                with open(dest_path, 'w+') as sql_file:
+                    data = sql_file.read()
+                    mapped_data, unmatched_bindings = utils.replace_bind_variables(data)
+                    sql_file.write(mapped_data)
 
-        
+                # We want to add the unchaged SQL path to the list
+                sql_paths.append(sql)
+
+            uc4_sql_dependencies[uc4_job] = sql_paths
+            logger.info("")
+
     # Generate the object mapping based on the data in the 
     # TERADATA_TO_BIGQUERY_MAP table.
     generate_object_mapping(client=bigquery_client)
@@ -325,9 +326,10 @@ def main():
     submit_job_to_bqms()
 
     # Perform the dry-runs
-    validate_sqls(client=bigquery_client, uc4_jobs=uc4_jobs,
+    validate_sqls(client=bigquery_client, uc4_jobs=data,
                   uc4_sql_dependencies=uc4_sql_dependencies)
-    
+
+    logger.info("translation completed")
 
 if __name__ == "__main__":
     main()

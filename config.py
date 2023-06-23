@@ -8,6 +8,9 @@ LOGGING_LEVEL = logging.INFO
 # The CSV File containing a list of UC4 Jobs
 UC4_CSV_FILE = Path(Path.cwd(), "input_csvs", "uc4_jobs.csv")
 
+#The csv_file containing the bind variables
+BIND_VARIABLE_CSV_FILE = Path(Path.cwd(), "input_csvs", "bind_variables.csv")
+
 # The GCP Project where the metadata will be stored
 METADATA_PROJECT = "michael-gilbert-dev"
 METADATA_DATASET = "uc4_conversion_metadata"
