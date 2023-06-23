@@ -39,6 +39,12 @@ def get_created_tables_and_views(sql_path: Path) -> List[str]:
         data = sql_file.read()
     data, unmatched_bindings = utils.replace_bind_variables(data)
 
+    unmatched_bindings_string = '\n'.join(unmatched_bindings)
+    assert unmatched_bindings == [], f"{sql_path} contains the following " \
+            f"bindings that do not have a mapping in " \
+            f"{config.BIND_VARIABLE_CSV_FILE}: \n " \
+            f"{unmatched_bindings_string}"
+
     table_references = []
     # Find all the CREATE SET TABLE instasces
     matches = re.findall(

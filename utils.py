@@ -132,7 +132,6 @@ def extract_sql_dependencies(sql_dependencies: list):
         else:
             sql_file_path = dependencies.get("sql_file_path")
             if sql_file_path != "" and sql_file_path not in sql_paths:
-                print(f"Found SQL file: {sql_file_path}")
                 sql_paths.append(sql_file_path)
     return sql_paths
 
@@ -208,13 +207,10 @@ def replace_bind_variables(sql: str):
         # Replace the bindings in the SQL string
         for row in csv_data:
             if row[0] in matched_bind_variables:
-                print("first value in row is ", row[0])
                 sql = sql.replace(row[0], row[1])
                 processed_variable = row[0]
                 matched_bind_variables.remove(processed_variable)
         unmatched_bind_variables = matched_bind_variables
-        if unmatched_bind_variables != []:
-            raise Exception(f"Here is a list of bindings we dont have mappings for: {unmatched_bind_variables}")
 
     # Return the updated string
     return sql,unmatched_bind_variables
