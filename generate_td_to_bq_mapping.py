@@ -79,8 +79,8 @@ def get_business_unit_map() -> dict:
 
         for row in data:
             assert len(row) == 3, "Malformed row {row} in " \
-                                  f"{config.BUSINESS_UNIT_DATASET_MAP_CSV_FILE}. The map is " \
-                                  "expected to have two elements separated by commas. "
+                f"{config.BUSINESS_UNIT_DATASET_MAP_CSV_FILE}. The map is " \
+                "expected to have two elements separated by commas. "
 
             # Set the map dictionary to have the key be the first element 
             # from the row, and the second be the value. For a row like 
@@ -161,9 +161,9 @@ def map_table_references(client: bigquery.Client, table_references: List[dict],
         table_id = reference.get(table_type)
         split_tr = table_id.split('.')
         split_tr_length = len(split_tr)
-        assert split_tr_length == 3 or split_tr_length == 2, "Malformed Table" \
-                                                             f" Reference. {reference} has {split_tr_length} elements. " \
-                                                             f"It should have either 2 or 3."
+        assert split_tr_length == 3 or split_tr_length == 2, \
+            f"Malformed Table Reference. {reference} has {split_tr_length} " \
+            "elements. It should have either 2 or 3."
 
         if len(split_tr) == 3:
             table = split_tr[2]
@@ -190,9 +190,9 @@ def setup():
                        base_path=config.BASE_PATH)
     # Make sure the UC4 Config file exists
     assert config.UC4_CSV_FILE.is_file(), "The uc4_jobs.csv file is expected " \
-                                          "to be available here '{config.UC4_CSV_FILE}' but it does not" \
-                                          " exist. Please refer to the README.md for instructions on how to" \
-                                          " create it."
+        "to be available here '{config.UC4_CSV_FILE}' but it does not" \
+        " exist. Please refer to the README.md for instructions on how to" \
+        " create it."
 
     # Make sure the Business Unit Dataset Map file exists
     assert config.BUSINESS_UNIT_DATASET_MAP_CSV_FILE.is_file(), \
@@ -238,8 +238,8 @@ def main():
 
         for row in data:
             assert len(row) == 2, "Malformed row {row} in " \
-                                  f"{config.UC4_CSV_FILE}. The map is " \
-                                  "expected to have two elements separated by commas. "
+                f"{config.UC4_CSV_FILE}. The map is expected to have two "\
+                "elements separated by commas. "
 
             uc4_job = row[0]
             business_unit = row[1]
@@ -250,8 +250,8 @@ def main():
 
             logger.info(f"The business unit for this UC4 Job is {business_unit}")
 
-            assert uc4_json.get('sql_dependencies') is not None, "Malformed JSON." \
-                                                                 f" {uc4_job} does not contain a 'sql_dependencies' element"
+            assert uc4_json.get('sql_dependencies') is not None, "Malformed " \
+                f"JSON. {uc4_job} does not contain a 'sql_dependencies' element"
 
             # Extract the SQL dependencies from the JSON
             sql_dependencies = utils.extract_sql_dependencies(uc4_json['sql_dependencies'])
